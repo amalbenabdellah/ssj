@@ -366,6 +366,10 @@ public class ScaledHistogram {
 	public double[] getHeights() {
 		return height;
 	}
+	
+	public double getHeight(double x) {
+		return height[(int) ((x -m_a) /m_h)];
+	}
 
 	public double getIntegral() {
 		return integral;
