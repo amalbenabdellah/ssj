@@ -31,6 +31,9 @@ import umontreal.ssj.util.Chrono;
 import umontreal.ssj.util.Num;
 import umontreal.ssj.util.PrintfFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import cern.colt.Arrays;
 
 
 /**
@@ -54,51 +57,68 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    public RQMCExperimentSeriesDensity (RQMCPointSet[] theSets) {
 	   super(theSets);
    }
+   public RQMCExperimentSeriesDensity (ArrayList<RQMCPointSet[]> theSets) {
+	   super(theSets);
+   }
 
 
+   /**
+    * Performs an RQMC experiment with the given model, with this series of RQMC point sets and a series of density estimator.  
+    * For each set in the series, computes the average, the variance, its log in base 2.
+    */
+   
+   
+   public void testVarianceRate (MonteCarloModelBounded model, int m,
+			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
+           double[] integVariance, RQMCPointSet [] theSets) {
+	   
+		   for(int i=0; i<listDE.size(); i++) 		   
+		   testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, theSets);		   
+	          	  
+   }
+   
    /**
     * Performs an RQMC experiment with the given model, with this series of RQMC point sets.  
     * For each set in the series, computes the average, the variance, its log in base 2.
     */
-   // @override
+   
+   
    public void testVarianceRate (MonteCarloModelBounded model, int m,
-				ArrayList<DensityEstimator> listDE, int numEvalPoints, 
-	            double[] integVariance) {
-		int n;
-		integVariance = new double[numSets];
-		Tally statReps = new Tally();
-		Chrono timer = new Chrono();
-		numReplicates = m;
-		this.model = model;
-	    if (displayExec) {
-	    	System.out.println("\n ============================================= ");
-	    	System.out.println("RQMC simulation for density estimation, for unknown density:  ");
-	    	System.out.println("Model: " + model.toString());
-	    	System.out.println(" Number of indep copies m  = " + m);
-	    	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
-			System.out.println("    n     CPU time         mean       log2(var) ");	    	
-	    }
-
-	 	for (int s = 0; s < numSets; s++) { // For each cardinality n
-			n = theSets[s].getNumPoints();
-			size[s] = n;
-			double[][] data = new double[m][n];
-			log2n[s] = Num.log2(n);
-			// System.out.println(" n = " + n + ", Lg n = " + log2n[s] + "\n"); // ****
-			// System.out.println("  " + n + "     " + timer.format());
-			RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);
-			RQMCExperimentDensity.computeDensityVarianceListDE (model, n, m, data, listDE, numEvalPoints, 
-			         integVariance);
-			mean[s] = statReps.average();
-		    log2Var[s] = Num.log2(integVariance[s]);
-		    if (displayExec) {
-			   System.out.println("  " + n + "     " + timer.format() + 
-			              "   " + PrintfFormat.f(10, 5, mean[s]) + 
-					      "   " + PrintfFormat.f(7, 2, log2Var[s]));
-		    }
-		}	   
-        cpuTime = timer.format();	   
+			DensityEstimator DE, int numEvalPoints, 
+           double[] integVariance, RQMCPointSet [] theSets) {
+	int n;
+	Tally statReps = new Tally();
+	Chrono timer = new Chrono();
+	numReplicates = m;
+	this.model = model;
+   if (displayExec) {
+   	System.out.println("\n ============================================= ");
+   	System.out.println("RQMC simulation for density estimation, for unknown density:  ");
+   	System.out.println("Model: " + model.toString());
+   	System.out.println(" Number of indep copies m  = " + m);
+   	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
+	System.out.println("    n     CPU time         mean       log2(var) ");	    	
    }
+
+  
+	for (int s = 0; s < numSets; s++) { // For each cardinality n
+		n = theSets[s].getNumPoints();
+		size[s] = n;
+		double[][] data = new double[m][];
+		log2n[s] = Num.log2(n);		
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
+		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, n, m, data, DE, numEvalPoints);
+		mean[s] = statReps.average();
+	    log2Var[s] = Num.log2(integVariance[s]);
+	    if (displayExec) {
+		   System.out.println("  " + n + "     " + timer.format() + 
+		              "   " + PrintfFormat.f(10, 5, mean[s]) + 
+				      "   " + PrintfFormat.f(7, 2, log2Var[s]));
+	    }
+	}	
+	 
+   cpuTime = timer.format();	   
+}
 
 
 
@@ -139,33 +159,37 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		return sb.toString();
 	}
 	
+	
+	
 	/**
-	 * Performs an experiment (testVarianceRate) for each point set series in the given list,
+	 * Performs an experiment (testVarianceRate)  with the given model for each point set series in the given list,
 	 * and returns a report as a string. 
 	 * 
-	 * @param model
-	 * @param list
-	 * @param m
 	 */
+	
 	public String TestRQMCManyPointTypes (MonteCarloModelBounded model, 
 			ArrayList<RQMCPointSet[]> list, int m,
 			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
             boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		numReplicates = m;	
-		double[] integVariance = null;   // Will contain the IV estimates, for each n.
-		for (RQMCPointSet[] ptSeries : list) {
-			init (ptSeries);            
-         	testVarianceRate (model, m, listDE, numEvalPoints, integVariance);
+		double[] integVariance= new double[numSets];   // Will contain the IV estimates, for each n.
+		for(int i=0; i < listDE.size(); i++) {
+		  for (RQMCPointSet[] ptSeries : list) {			
+         	testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
 			sb.append (report (details));			
-		}
+		  }
+	    }
 		return sb.toString();
 	}
+	
 	
 	/**
 	 * Performs an experiment (testVarianceRate) for each point set series in the given list,
 	 * and returns a report as a string. 
+	 * 
 	 */
+	
 	public String toString () {
 		return theSets[0].toString();
 	}

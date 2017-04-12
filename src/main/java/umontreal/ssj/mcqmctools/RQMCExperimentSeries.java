@@ -27,6 +27,7 @@ package umontreal.ssj.mcqmctools;
 import umontreal.ssj.functionfit.LeastSquares;
 import umontreal.ssj.hups.*;
 import umontreal.ssj.stat.Tally;
+import umontreal.ssj.stat.density.DensityEstimator;
 import umontreal.ssj.stat.list.lincv.ListOfTalliesWithCV;
 import umontreal.ssj.util.Chrono;
 import umontreal.ssj.util.Num;
@@ -47,9 +48,11 @@ import java.util.ArrayList;
 
 public class RQMCExperimentSeries {
 	int numSets = 0;  // Number of point sets in the series.
-    RQMCPointSet[] theSets = null;   
+    RQMCPointSet[] theSets = null;  
+    ArrayList<RQMCPointSet[]> theSetslist = null;
+    
 	double[] size = new double[numSets];    // values of n
-	double[] mean = new double[numSets];    // averge performance for each point set 
+	double[] mean = new double[numSets];    // average performance for each point set 
 	double[] variance = new double[numSets]; // variance for each point set
 	double[] log2n = new double[numSets];   // log_2 n
 	double[] log2Var = new double[numSets]; // log_2 of variance
@@ -66,6 +69,10 @@ public class RQMCExperimentSeries {
     */
    public RQMCExperimentSeries (RQMCPointSet[] theSets) {
 	   init(theSets);
+   }
+   
+   public RQMCExperimentSeries (ArrayList<RQMCPointSet[]> theSetslist) {
+	   this.theSetslist = theSetslist;
    }
 
    /**
@@ -120,8 +127,6 @@ public class RQMCExperimentSeries {
 			n = theSets[s].getNumPoints();
 			size[s] = n;
 			log2n[s] = Num.log2(n);
-			// System.out.println(" n = " + n + ", Lg n = " + log2n[s] + "\n"); // ****
-			// System.out.println("  " + n + "     " + timer.format());
 			RQMCExperiment.simulReplicatesRQMC (model, theSets[s], m, statReps);
 			mean[s] = statReps.average();
 			variance[s] = statReps.variance();
@@ -158,8 +163,6 @@ public class RQMCExperimentSeries {
 			n = theSets[s].getNumPoints();
 			size[s] = n;
 			log2n[s] = Num.log2(n);
-			// System.out.println(" n = " + n + ", Lg n = " + log2n[s] + "\n"); // ****
-			// System.out.println("  " + n + "     " + timer.format());
 			RQMCExperiment.simulReplicatesRQMCCV (model, theSets[s], m, statWithCV);
 			statWithCV.estimateBeta();    // This is where the var. and covar. are computed!
 			mean[s] = statWithCV.averageWithCV(0);

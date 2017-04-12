@@ -30,7 +30,7 @@ public interface DensityEstimator {
 	/**
 	 * Returns the value of the density evaluated at x.
 	 */
-	public double evalDensity (double x);
+	public double evalDensity (double x, int n);
 
 	
     /**	
@@ -39,7 +39,13 @@ public interface DensityEstimator {
      * @param x  evaluation points
      * @param density  values of the density
      */
-	public void evalDensity (double[] x, double[] density);
+	//public void evalDensity (double[] x, double[] density);
+	public void evalDensity (double[] x, double[] density, double[] data);
+	public int getM();
+	public double getA();
+	public double getB();
+		
+	}
 		
 
-}
+

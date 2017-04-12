@@ -62,12 +62,20 @@ public class RQMCExperiment extends MonteCarloExperiment {
 	public static void simulReplicatesRQMCSave (MonteCarloModelDouble model, RQMCPointSet prqmc, 
 	        int m, Tally statReps, double[][] data) {
 		int n = prqmc.getNumPoints();
-        data = new double[m][];  // ????
 		// Internal collector for stats on the n outputs X, for each replication.
 		TallyStore statSave = new TallyStore(n);
 		PointSetIterator stream = prqmc.iterator();
 		for (int rep = 0; rep < m; rep++) {
+			//PointSetRandomization rand = prqmc.getRandomization();
+			//prqmc.getPointSet().randomize(rand);
+			//rand.randomize(prqmc.getPointSet());
+			
+			if(prqmc.getPointSet() instanceof DigitalNet)
 			prqmc.randomize();
+			else{
+			  PointSetRandomization rand = prqmc.getRandomization();
+			  prqmc.getPointSet().randomize(rand);
+			}
 			stream.resetStartStream();			
 			simulateRuns(model, n, stream, statSave);
 			statReps.add(statSave.average());   // For the estimator of the mean.

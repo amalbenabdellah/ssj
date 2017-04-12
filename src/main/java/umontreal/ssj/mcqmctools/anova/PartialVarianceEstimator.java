@@ -99,7 +99,7 @@ public class PartialVarianceEstimator implements MonteCarloModel<double[]> {
     * \li \c vars[\c nSets+1] contains the square of the above correction.
     *
     */
-   @Override public void simulate (RandomStream stream) {
+    public void simulate (RandomStream stream) {
 
       // initialize storage
       if (vars == null || vars.length != coordSets.size() + 2)
@@ -152,7 +152,7 @@ public class PartialVarianceEstimator implements MonteCarloModel<double[]> {
    }
    
 
-   @Override public double[] getPerformance () {
+    public double[] getPerformance () {
 	   return vars;
 	   }
 	   
@@ -161,7 +161,7 @@ public class PartialVarianceEstimator implements MonteCarloModel<double[]> {
     * Returns the number of input dimensions.
     *
     */
-   @Override public int getDimension() {
+    public int getDimension() {
       return (model == null) ? 0 : 2 * model.getDimension();
    }
    
@@ -170,7 +170,7 @@ public class PartialVarianceEstimator implements MonteCarloModel<double[]> {
     * Returns a description of the partial variance estimator.
     *
     */
-   @Override public String toString() {
+    public String toString() {
       String s = String.format("Partial Variance Estimator"
             + " [model=%s]", model.toString());
       return s;

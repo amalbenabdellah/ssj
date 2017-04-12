@@ -130,7 +130,7 @@ public class BetaDist extends ContinuousDistribution {
    }
 
 
-   @Override
+   
    public double density (double x) {
       if (x <= a || x >= b)
          return 0;
@@ -139,32 +139,32 @@ public class BetaDist extends ContinuousDistribution {
       return Math.exp(logFactor + temp);
    }
 
-   @Override
+   
    public double cdf (double x) {
       return cdf (alpha, beta, (x - a)/bminusa);
    }
 
-   @Override
+   
    public double barF (double x) {
       return barF (alpha, beta, (x - a)/bminusa);
    }
 
-   @Override
+   
    public double inverseF (double u) {
       return a + (b - a)*inverseF (alpha, beta, u);
    }
 
-   @Override
+   
    public double getMean() {
       return BetaDist.getMean (alpha, beta, a, b);
    }
 
-   @Override
+   
    public double getVariance() {
       return BetaDist.getVariance (alpha, beta, a, b);
    }
 
-   @Override
+   
    public double getStandardDeviation() {
       return BetaDist.getStandardDeviation (alpha, beta, a, b);
    }
@@ -946,7 +946,7 @@ public void setParams (double alpha, double beta, double a, double b) {
     * Return an array containing the parameters of the current
     * distribution as [@f$\alpha@f$, @f$\beta@f$, @f$a@f$, @f$b@f$].
     */
-   @Override
+   
    public double[] getParams () {
       double[] retour = {alpha, beta, a, b};
       return retour;
@@ -956,7 +956,7 @@ public void setParams (double alpha, double beta, double a, double b) {
     * Returns a `String` containing information about the current
     * distribution.
     */
-   @Override
+   
    public String toString () {
       return getClass().getSimpleName() + " : alpha = " + alpha + ", beta = " + beta;
    }

@@ -286,8 +286,7 @@ public class KernelDensityEstimator1d {
 			data_reorder[i] = data[2*i];
 			data_reorder[n/2+i] = data[n-1-2*i];
 		}
-		Complex[] fft = new FastFourierTransformer(DftNormalization.STANDARD)
-				.transform(data_reorder,  TransformType.FORWARD);
+		Complex[] fft = new FastFourierTransformer(DftNormalization.STANDARD).transform(data_reorder,  TransformType.FORWARD);
 		//Multiply FFT by weights
 		Complex w0 = new Complex(0,-Math.PI/(2*n)).exp();
 		Complex weight = new Complex(2);

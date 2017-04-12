@@ -100,7 +100,7 @@ public class AnovaVarianceEstimator implements MonteCarloModel<double[]> {
     * \li \c vars[\c nSets+1] contains the total variance.
     *
     */
-   @Override public void simulate (RandomStream stream) {
+    public void simulate (RandomStream stream) {
 
       List<CoordinateSet> coordSets = varEstimator.getCoordinateSets();
       int nSets = coordSets.size();
@@ -133,7 +133,7 @@ public class AnovaVarianceEstimator implements MonteCarloModel<double[]> {
    }
 
 
-   @Override public double[] getPerformance () {
+    public double[] getPerformance () {
 	   return vars;
 	   }
 	   
@@ -142,7 +142,7 @@ public class AnovaVarianceEstimator implements MonteCarloModel<double[]> {
     * Returns the number of dimensions for the input.
     *
     */
-   @Override public int getDimension() {
+    public int getDimension() {
       return varEstimator.getDimension();
    }
    
@@ -151,7 +151,7 @@ public class AnovaVarianceEstimator implements MonteCarloModel<double[]> {
     * Returns a description of the partial variance estimator.
     *
     */
-   @Override public String toString() {
+    public String toString() {
       String s = String.format("ANOVA Variance Estimator"
             + " [model=%s]", varEstimator.getModel());
       return s;

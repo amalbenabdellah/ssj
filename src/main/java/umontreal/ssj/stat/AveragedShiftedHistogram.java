@@ -44,17 +44,17 @@ import umontreal.ssj.util.PrintfFormat;
 * <div class="SSJ-bigskip"></div>
 */
 
-public class ScaledHistogram {
-	protected int numBins; // number of bins
+public class AveragedShiftedHistogram {
+	protected int nbin; // number of bins
 	protected double m_h; // width of each bin
 	protected double m_a; // left boundary of first bin
 	protected double m_b; // right boundary of last bin
+	protected int r;
 	protected double[] height; // rescaled counters: height[j] is the height of bin j.
-	protected double[] heightSH; // rescaled counters: height[j] is the height of bin j.
 	protected double integral;  // Total area under the histogram, = (b-a) x sum of heights.
 	private Logger log = Logger.getLogger("umontreal.ssj.stat");
 
-	private ScaledHistogram() {}
+	private AveragedShiftedHistogram() {}
 
 	/**
 	 * Constructs a `ScaledHistogram` over the interval @f$[a,b]@f$, which is divided into 
@@ -67,15 +67,15 @@ public class ScaledHistogram {
 	 * @param numBins
 	 *            number of bins
 	 */
-	public ScaledHistogram(double a, double b, int numBins) {
-		init(a, b, numBins);
+	public AveragedShiftedHistogram(double a, double b, int numBins, int r) {
+		init(a, b, numBins, r);
 	}
 
 	/*
 	 * Constructs a @ref ScaledHistogram from @ref hist by normalizing the bin counts so
 	 * that the integral of the histogram is equal to @ref integral.
 	 */
-	public ScaledHistogram (TallyHistogram hist, double integral) {
+	public AveragedShiftedHistogram (TallyHistogram hist, double integral) {
 		init (hist, integral);
 	}
 
@@ -91,15 +91,16 @@ public class ScaledHistogram {
 	 * @param numBins
 	 *            number of bins
 	 */
-	public void init (double a, double b, int numBins) {
+	public void init (double a, double b, int numBins, int r) {
 		if (b <= a)
 			throw new IllegalArgumentException("   b <= a");
-		this.numBins = numBins;
-		m_h = (b - a) / numBins;
+		this.nbin = numBins*r;
+		m_h = (b - a) / nbin;
 		m_a = a;
 		m_b = b;
-		height = new double[numBins];
-		for (int i = 0; i < numBins; i++)
+		this.r = r;
+		height = new double[nbin];
+		for (int i = 0; i < nbin; i++)
 			height[i] = 0;
 		integral = 0.0;
 	}
@@ -113,12 +114,12 @@ public class ScaledHistogram {
 		m_a = hist.getA();
 		m_b = hist.getB();
 		m_h = hist.getH();
-		numBins = hist.numBins;
-		height = new double[numBins];
+		nbin = hist.numBins;
+		height = new double[nbin];
 		this.integral = integral;
 		int count[] = hist.getCounters();
 		double scaleFactor = integral / (hist.numberObs() * m_h);
-		for (int i = 0; i < numBins; i++) 
+		for (int i = 0; i < nbin; i++) 
 			height[i] = count[i] * scaleFactor;  
 	}
 	
@@ -126,7 +127,7 @@ public class ScaledHistogram {
 	 * Initializes all the heights (frequencies) to 0.
 	 */
 	public void init () {
-		for (int i = 0; i < numBins; i++)
+		for (int i = 0; i < nbin; i++)
 			height[i] = 0.0;
 	}
 		
@@ -135,7 +136,7 @@ public class ScaledHistogram {
 	 */
 	public void rescale (double integral) {
 		double scaleFactor = integral / this.integral;
-		for (int i = 0; i < numBins; i++)
+		for (int i = 0; i < nbin; i++)
 			height[i] *= scaleFactor;
 		this.integral = integral;
 	}
@@ -148,16 +149,16 @@ public class ScaledHistogram {
 	 * distance @f$d@f$ from the target bin, for all @f$d < r@f$.
 	 * 
 	 */
-	public ScaledHistogram averageShiftedHistogram (int r) {
-		ScaledHistogram image = clone();
+	public AveragedShiftedHistogram averageShiftedHistogram (int r) {
+		AveragedShiftedHistogram image = clone();
 		double[] heightNew = image.getHeights();
 		double rscale = 1.0 / (r * r);   // Rescaling to be made for each bin.
 		double sum = 0.0;
-		for (int k = 0; k < numBins; k++) {
+		for (int k = 0; k < nbin; k++) {
 			heightNew[k] = r * height[k]; 
 			for (int ell = 1; ell < r; ell++) {
 				if (k-ell >= 0) heightNew[k] += (r-ell) * height[k-ell];
-				if (k+ell < numBins) heightNew[k] += (r-ell) * height[k+ell];	
+				if (k+ell < nbin) heightNew[k] += (r-ell) * height[k+ell];	
 			}		
 			heightNew[k] *= rscale;
 			sum += heightNew[k];
@@ -201,12 +202,12 @@ public class ScaledHistogram {
 		return image;
 	}*/
 	
-	public ScaledHistogram averageShiftedHistogramTrunc (int r) {
-		ScaledHistogram image = clone();
+	public AveragedShiftedHistogram averageShiftedHistogramTrunc (int r) {
+		AveragedShiftedHistogram image = clone();
 		double[] heightNew = image.getHeights();
 		// double rscale = 1.0 / (r * r);   // Rescaling to be made for each bin.
 		double sum = 0.0;
-		for (int k = 0; k < numBins; k++) {
+		for (int k = 0; k < nbin; k++) {
 			heightNew[k] = r * height[k];  // 
 			int weight = r;
 			for (int ell = 1; ell < r; ell++) {
@@ -214,7 +215,7 @@ public class ScaledHistogram {
 					heightNew[k] += (r-ell) * height[k-ell];
 					weight += r-ell;
 				}
-				if (k+ell < numBins) {
+				if (k+ell < nbin) {
 					heightNew[k] += (r-ell) * height[k+ell];	
 					weight += r-ell;
 				}
@@ -234,21 +235,21 @@ public class ScaledHistogram {
 	 * a weight proportional to @ref w[i]. The given weights do not have to sum to 1;
 	 * they are rescaled so the sum of weights that go to any given bin is 1.
 	 */
-	public ScaledHistogram averageShiftedHistogram (int r, double[] w) {
-		ScaledHistogram image = clone();
+	public AveragedShiftedHistogram averageShiftedHistogram (int r, double[] w) {
+		AveragedShiftedHistogram image = clone();
 		double[] heightNew = image.getHeights();
 		double weight = w[0];
 		for (int ell = 1; ell < r; ell++)
             weight += 2.0 * w[ell];
 	    double rscale = 1.0 / weight;     // Rescaling factor for each bin.
 		double sum = 0.0;
-		for (int k = 0; k < numBins; k++) {
+		for (int k = 0; k < nbin; k++) {
 			heightNew[k] = w[0] * height[k];  // 
 			for (int ell = 1; ell < r; ell++) {
 				if (k-ell >= 0) {
 					heightNew[k] += w[ell] * height[k-ell];
 				}
-				if (k+ell < numBins) {
+				if (k+ell < nbin) {
 					heightNew[k] += w[ell] * height[k+ell];	
 				}
 			}		
@@ -268,12 +269,12 @@ public class ScaledHistogram {
 	 * they are rescaled so the sum of weights that go to any given bin is 1 (not counting 
 	 * the weights given to bins that fall outside the interval).
 	 */
-	public ScaledHistogram averageShiftedHistogramTrunc (int r, double[] w) {
-		ScaledHistogram image = clone();
+	public AveragedShiftedHistogram averageShiftedHistogramTrunc (int r, double[] w) {
+		AveragedShiftedHistogram image = clone();
 		double[] heightNew = image.getHeights();
 		// double rscale = 1.0 / (r * r);   // Rescaling to be made for each bin.
 		double sum = 0.0;
-		for (int k = 0; k < numBins; k++) {
+		for (int k = 0; k < nbin; k++) {
 			heightNew[k] = w[0] * height[k];  // 
 			double weight = w[0];
 			for (int ell = 1; ell < r; ell++) {
@@ -281,7 +282,7 @@ public class ScaledHistogram {
 					heightNew[k] += w[ell] * height[k-ell];
 					weight += w[ell];
 				}
-				if (k+ell < numBins) {
+				if (k+ell < nbin) {
 					heightNew[k] += w[ell] * height[k+ell];	
 					weight += w[ell];
 				}
@@ -330,28 +331,28 @@ public class ScaledHistogram {
 	/*
 	 * This is supposed to be a faster implementation of @ref averageShiftedHistogram(r).
 	 */
-	public ScaledHistogram averageShiftedHistogram1 (int r) {
-		ScaledHistogram image = clone();
+	public AveragedShiftedHistogram averageShiftedHistogram1 (int r) {
+		AveragedShiftedHistogram image = clone();
 		double[] heightNew = image.getHeights();
 		double rscale = 1.0 / (r * r);   // Rescaling to be made for each bin.
 		double sum = 0.0;
-        double S1[] = new double[numBins];
-        double S2[] = new double[numBins];
+        double S1[] = new double[nbin];
+        double S2[] = new double[nbin];
         S1[0] = height[0];
         S2[0] = 0.0;
         heightNew[0] = r * S1[0];
-		for (int ell = 1; ell <= Math.min(r, numBins); ell++){
+		for (int ell = 1; ell <= Math.min(r, nbin); ell++){
 			S2[0] += height[ell];	
 			heightNew[0] += (r-ell) * height[ell];
 		}
-	    for (int k = 2; k <= numBins; k++) {
+	    for (int k = 2; k <= nbin; k++) {
       			S1[k-1] = S1[k-2] + height[k-1];
       			if (k >= r) S1[k-1] -= height[k-r];
       			S2[k-1] = S2[k-2] - height[k-1];
-      			if (k+r< numBins) S2[k-1] += height[k+r-1];	
+      			if (k+r< nbin) S2[k-1] += height[k+r-1];	
       			heightNew[k-1] = heightNew[k-2] + S2[k-2] - S1[k-2];
 		}      	
-    	for (int k = 0; k <numBins; k++) {
+    	for (int k = 0; k <nbin; k++) {
     		heightNew[k] *= rscale;
 			sum += heightNew[k];	
     	}
@@ -369,7 +370,7 @@ public class ScaledHistogram {
 	 * @return the number of bins
 	 */
 	public int getNumBins() {
-		return numBins;
+		return nbin;
 	}
 
 	/**
@@ -400,7 +401,6 @@ public class ScaledHistogram {
 	public double getHeight(double x) {
 		return height[(int) ((x -m_a) /m_h)];
 	}
-	
 
 	public double getIntegral() {
 		return integral;
@@ -412,9 +412,9 @@ public class ScaledHistogram {
 	 */
 	public double ISEvsU01 () {
 		double sum = 0.0;
-		for (int j = 0; j < numBins; ++j)
+		for (int j = 0; j < nbin; ++j)
 		   sum += (height[j] - 1.0) * (height[j] - 1.0);
-		return sum / numBins;
+		return sum / nbin;
 	}
 	
 	/**
@@ -424,32 +424,32 @@ public class ScaledHistogram {
 	 * @f$\int_0^1 ((a + (b-a)x)^2 dx = (b^3 - a^3) / (3 (b-a)) = (b^2 + a^2 + ab)/3.@f$
 	 */
 	public double ISEvsU01polygonal () {
-		double w0[] = new double[numBins];  // histogram shifted down to zero mean.
-		for (int j = 0; j < numBins; ++j) {
+		double w0[] = new double[nbin];  // histogram shifted down to zero mean.
+		for (int j = 0; j < nbin; ++j) {
 			w0[j] = height[j] - 1.0;
 		}
 		double a, b;
-		double sum = 0.5 * (w0[0] * w0[0] + w0[numBins-1] * w0[numBins-1]);
-		for (int j = 0; j < numBins-2; ++j) {
+		double sum = 0.5 * (w0[0] * w0[0] + w0[nbin-1] * w0[nbin-1]);
+		for (int j = 0; j < nbin-2; ++j) {
 		   a = w0[j];
 		   b = w0[j+1];
 		   sum += 0.3333333333333333333 * (b*b + a*a + a*b);
 		}
-		return sum / (double)numBins;
+		return sum / (double)nbin;
 	}
 	
 	/**
 	 * Clones this object and the array which stores the counters.
 	 */
-	public ScaledHistogram clone() {
-		ScaledHistogram image = new ScaledHistogram();
-		image.numBins = numBins;
+	public AveragedShiftedHistogram clone() {
+		AveragedShiftedHistogram image = new AveragedShiftedHistogram();
+		image.nbin = nbin;
 		image.m_h = m_h;
 		image.m_a = m_a;
 		image.m_b = m_b;
-		image.height = new double[numBins]; 
+		image.height = new double[nbin]; 
 		image.integral = integral;  
-		for (int j = 1; j < numBins; ++j)
+		for (int j = 1; j < nbin; ++j)
 		   image.height[j] = height[j];
 		return image;
 	}

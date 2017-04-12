@@ -22,17 +22,17 @@ public class MonteCarloIntegrator extends MonteCarloSampler implements RandomInt
    /**
     * Returns the number of samples.
     */
-   @Override public int getNumPoints() {
+  public int getNumPoints() {
       return getNumSamples();
    }
 
    /** @copydoc #getNumPoints() */
-   @Override public int getTotalSimulations() {
+    public int getTotalSimulations() {
       return getNumSamples();
    }
 
    /** @copydoc Integrator::integrate(MonteCarloModelDouble, Tally) */
-   @Override public void integrate (MonteCarloModelDouble model, Tally statValue) {
+  public void integrate (MonteCarloModelDouble model, Tally statValue) {
  
       boolean isPointSet = (stream instanceof PointSetIterator);
       
@@ -45,7 +45,7 @@ public class MonteCarloIntegrator extends MonteCarloSampler implements RandomInt
    }
    
    /** @copydoc Integrator::integrate(MonteCarloModelDouble) */
-   @Override public double integrate (MonteCarloModelDouble model) {
+    public double integrate (MonteCarloModelDouble model) {
       if (statValue == null)
          this.statValue = new Tally();
       else
@@ -55,7 +55,7 @@ public class MonteCarloIntegrator extends MonteCarloSampler implements RandomInt
    }
 
    /** @copydoc Integrator::integrate(MonteCarloModel<double[]>, ListOfTallies<? extends Tally>) */
-   @Override public void integrate (MonteCarloModel<double[]> model, ListOfTallies<? extends Tally> statValue) {
+  public void integrate (MonteCarloModel<double[]> model, ListOfTallies<? extends Tally> statValue) {
 
       boolean isPointSet = (stream instanceof PointSetIterator);
       
@@ -68,7 +68,7 @@ public class MonteCarloIntegrator extends MonteCarloSampler implements RandomInt
    }
 
    /** @copydoc Integrator::integrate(MonteCarloModel<double[]>, double[]) */
-   @Override public void integrate (MonteCarloModel<double[]> model, double[] values) {
+    public void integrate (MonteCarloModel<double[]> model, double[] values) {
       if (statValueList == null || statValueList.size() != values.length)
          this.statValueList = ListOfTallies.createWithTally(values.length);
       else
