@@ -32,6 +32,15 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		
 	}
     
+    public DEGaussianKDEBotev (double a, double b, int m ) {
+    	
+    	this.a = a;
+		this.b = b;
+		this.m = m;
+		kde = null;
+		
+	}
+    
     public void setRange(double a, double b) {
 		
 		this.a = a;
@@ -77,8 +86,11 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	public void constructDensity(double[] x) {
 		
 		 kde = new KernelDensityEstimator1d ();
-		 kde.kde(x,m,a,b,bandwidthKDE);
-		
+		 
+		 //For fixed bandwidth
+		// kde.kde(x,m,a,b,bandwidthKDE);
+		//For variable bandwidth
+		 kde.kde(x,m,a,b);
 	}
 
 	public double evalDensity(double x, int n) {
