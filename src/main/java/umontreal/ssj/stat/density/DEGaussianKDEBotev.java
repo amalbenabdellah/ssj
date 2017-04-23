@@ -88,15 +88,15 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	
 	public double evalDensity(double x, double[] data) {
 		
-		double sum=0.0;
+		/*double sum=0.0;
 		for(int i=0; i < data.length; i++){
 		sum += NormalDist.density(0, 1, (data[i]-x)/bandwidthKDE);
 		}
-		return sum/(bandwidthKDE*data.length);
+		return sum/(bandwidthKDE*data.length);*/
 		
-	/*	double[] densi = kde.getDensity();
+		double[] densi = kde.getDensity();
 		double h = (b-a)/m;
-		return densi[(int) ((x -a) /h)];*/
+		return densi[(int) ((x -a) /h)];
 		
 	}
 

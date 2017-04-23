@@ -83,6 +83,10 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			evalPoints[i] = data[rep][i];
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			
+			/*for (int i=0; i<numEvalPoints; i++)
+			
+			System.out.println("estimDens"+ estimDens[i]);*/
+			
 	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
 			for (int j = 0; j < numEvalPoints; j++) {
 				x = estimDens[j];				

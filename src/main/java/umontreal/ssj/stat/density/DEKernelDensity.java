@@ -22,9 +22,11 @@
  * limitations under the License.
  *
  */
-package umontreal.ssj.gof;
-   import umontreal.ssj.probdist.*;
+package umontreal.ssj.stat.density;
+   import umontreal.ssj.gof.KernelDensity;
+import umontreal.ssj.probdist.*;
 import umontreal.ssj.randvar.KernelDensityGen;
+import umontreal.ssj.stat.KernelDensityEstimator1d;
 
 /**
  * This class provides methods to compute a kernel density estimator from a
@@ -36,27 +38,49 @@ import umontreal.ssj.randvar.KernelDensityGen;
  *
  * <div class="SSJ-bigskip"></div>
  */
-public class KernelDensity {
+public class DEKernelDensity implements DensityEstimator {
+	double a, b, h; 
+	KernelDensity kerD;
+	EmpiricalDist dist;
+	ContinuousDistribution kern ;
+	
+	public DEKernelDensity(double a, double b, double h, ContinuousDistribution kern  ) {
+		
+		this.a = a;
+		this.b = b;
+		this.h = h;
+		//this.dist = dist;
+		this.kern = kern;
+	}
+	
+    public void setRange(double a, double b) {
+		
+		this.a = a;
+		this.b = b;
+	}
+	
+	public void constructDensity(double[] x) {
+		
+		kerD = new KernelDensity();
+		dist= new EmpiricalDist(x);
+		
+		
+	}
 
-   public  double estimate (EmpiricalDist dist,
-                                   ContinuousDistribution kern,
-                                   double h, double y) {
-      // Computes and returns the kernel density estimate at $y$, where the 
-      // kernel is the density kern.density(x), and the bandwidth is $h$.
-      double z;
-      double a = kern.getXinf();       // lower limit of density
-      double b = kern.getXsup();       // upper limit of density
-      double sum = 0;
-      int n = dist.getN();
-      for (int i = 0; i < n; i++) {
-         z = (y - dist.getObs(i))/h;
-         if ((z >= a) && (z <= b))
-            sum += kern.density(z);
-      }
+	public double evalDensity(double x, int n) {
+		return kerD.estimate(dist, kern, h, x);
+		
+	}
 
-      sum /= (h*n);
-      return sum;
-   }
+	public void evalDensity(double[] x, double[] f, double[] data ) {
+		
+		for(int i=0; i < x.length; i++)
+			f[i] = evalDensity(x[i], data.length);
+		
+		//f = kerD.computeDensity(dist, kern, h, x);
+		
+	}
+	
 
    /**
     * Given the empirical distribution `dist`, this method computes the
@@ -66,7 +90,7 @@ public class KernelDensity {
     * bandwidth is @f$h@f$. Returns the estimates as an array of @f$m@f$
     * values.
     */
-   public  double[] computeDensity (EmpiricalDist dist,
+  /* public static double[] computeDensity (double[] data,
                                           ContinuousDistribution kern,
                                           double h, double[] Y) {
       int m = Y.length;
@@ -74,7 +98,7 @@ public class KernelDensity {
       for (int j = 0; j < m; j++)
          u[j] = estimate (dist, kern, h, Y[j]);
       return u;
-   }
+   }*/
 
    /**
     * Similar to method
@@ -84,11 +108,26 @@ public class KernelDensity {
     * {@link umontreal.ssj.randvar.KernelDensityGen.getBaseBandwidth(EmpiricalDist)
     * getBaseBandwidth(dist)} in package `randvar`.
     */
-   public  double[] computeDensity (EmpiricalDist dist,
+   /*public static double[] computeDensity (EmpiricalDist dist,
                                           ContinuousDistribution kern,
                                           double[] Y) {
       double h = KernelDensityGen.getBaseBandwidth(dist);
       return computeDensity (dist, kern, h, Y);
-   }
+   }*/
+
+public int getM() {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+public double getA() {
+	// TODO Auto-generated method stub
+	return a;
+}
+
+public double getB() {
+	// TODO Auto-generated method stub
+	return b;
+}
 
 }

@@ -401,7 +401,7 @@ public class KernelDensityEstimator1d {
 			
 			for (int s = l-1; s>1; s--) {
 				//compute t_s=gamma_s(time) where time=t_{s+1} according to formula (8.32)
-				double k0 = 1/Math.sqrt(2*Math.PI);
+				double k0 = 1/Math.sqrt(2*Math.PI);				
 				for (int k=1; k<2*s; k+=2) {
 					k0 *= k;
 				}
