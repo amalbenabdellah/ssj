@@ -56,6 +56,7 @@ public class RQMCExperimentSeries {
 	double[] variance = new double[numSets]; // variance for each point set
 	double[] log2n = new double[numSets];   // log_2 n
 	double[] log2Var = new double[numSets]; // log_2 of variance
+	double[] log2MISE = new double[numSets]; // log_2 of MISE
 	boolean displayExec = false;   // When true, prints a display of execution in real time
 	int numReplicates;    // last value of m
 	MonteCarloModelDouble model;
