@@ -145,7 +145,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
     * @param details  If true, gives values (mean, log variance,...) for each n.
     * @return  Report as a string.
     */
-	public String report (boolean details) {
+	public String reportMISE (boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with known density: \n ");
@@ -183,16 +183,16 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 	public String reportVariedH (boolean details, double alpha) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
-		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
+		sb.append("RQMC simulation for density estimation, with known density: \n ");
 		sb.append("Model: " + model.toString() + "\n");
 		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
 		sb.append(" Point sets: " + this.toString() + "\n\n");
-		sb.append("RQMC integrated variance (IV) \n");
+		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
-			sb.append("    n      mean       log2(var) \n");
+			sb.append("    n   log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, mean[s]) +
-				          " " + PrintfFormat.f(7, 2, log2Var[s]) + "\n");
+				sb.append(" " + size[s] + " " +
+				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
 			}
 		}
 		double[] regCoeff = regressionLogMISEVariedh (numSkipRegression);
@@ -223,7 +223,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
          	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);
-			sb.append (report (details));			
+			sb.append (reportMISE (details));			
 		  }
 	    }
 		return sb.toString();

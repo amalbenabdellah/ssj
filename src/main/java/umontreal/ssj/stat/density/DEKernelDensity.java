@@ -120,6 +120,8 @@ public double geth() {
 	return h;
 }
 
+
+
 public double getA() {
 	// TODO Auto-generated method stub
 	return a;
