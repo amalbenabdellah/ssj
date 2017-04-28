@@ -57,6 +57,7 @@ public class RQMCExperimentSeries {
 	double[] log2n = new double[numSets];   // log_2 n
 	double[] log2Var = new double[numSets]; // log_2 of variance
 	double[] log2MISE = new double[numSets]; // log_2 of MISE
+	double[] log2h = new double[numSets]; // log_2 of MISE
 	boolean displayExec = false;   // When true, prints a display of execution in real time
 	int numReplicates;    // last value of m
 	MonteCarloModelDouble model;
@@ -96,6 +97,8 @@ public class RQMCExperimentSeries {
 	     variance = new double[numSets]; // variance for each point set
 	     log2n = new double[numSets];    // log_2 n
 	     log2Var = new double[numSets];  // log_2 of the variance
+	     log2MISE = new double[numSets]; // log_2 of the MISE
+	     log2h = new double[numSets];  //   log_2 of the bandwidth
    }
    
    /**
@@ -270,6 +273,8 @@ public class RQMCExperimentSeries {
 		sb.append("-----------------------------------------------------\n");		
 		return sb.toString();
 	}
+	
+	
 	
 	/**
 	 * Performs an experiment (testVarianceRate) for each point set series in the given list,

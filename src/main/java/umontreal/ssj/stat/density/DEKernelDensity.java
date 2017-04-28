@@ -115,9 +115,9 @@ public class DEKernelDensity implements DensityEstimator {
       return computeDensity (dist, kern, h, Y);
    }*/
 
-public int getM() {
+public double geth() {
 	// TODO Auto-generated method stub
-	return 0;
+	return h;
 }
 
 public double getA() {

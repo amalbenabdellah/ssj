@@ -27,7 +27,7 @@ import umontreal.ssj.util.PrintfFormat;
  * @author Pierre L'Ecuyer
  * 
  */
-public class RQMCExperimentDensityKnown extends RQMCExperiment {
+public class RQMCExperimentDensityKnown extends RQMCExperimentDensity {
 
 
 	/**

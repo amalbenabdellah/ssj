@@ -48,7 +48,7 @@ import cern.colt.Arrays;
  * linear regression of log(variance) as a function of log(n). 
  */
 
-public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeries {
+public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensity {
 
 
    /**
@@ -168,6 +168,43 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeries {
 		return sb.toString();
 	}
 	
+	
+	public double[] regressionLogMISEVariedh (int numSkip) {
+		double[][] x2 = new double[numSets-numSkip][2];
+		double [] y2 = new double[numSets-numSkip];
+		for (int i = 0; i < numSets-numSkip; ++i) {
+			x2[i][0] = log2n[i+numSkip];
+			x2[i][1] = log2h[i+numSkip];			
+			y2[i] = log2MISE[i+numSkip];
+		}
+		return LeastSquares.calcCoefficients0(x2, y2);
+	}
+	
+	public String reportVariedH (boolean details, double alpha) {
+		StringBuffer sb = new StringBuffer("");
+		sb.append("\n ============================================= \n");
+		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
+		sb.append("Model: " + model.toString() + "\n");
+		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
+		sb.append(" Point sets: " + this.toString() + "\n\n");
+		sb.append("RQMC integrated variance (IV) \n");
+		if (details) {
+			sb.append("    n      mean       log2(var) \n");
+			for (int s = 0; s < numSets; s++) { // For each cardinality n
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, mean[s]) +
+				          " " + PrintfFormat.f(7, 2, log2Var[s]) + "\n");
+			}
+		}
+		double[] regCoeff = regressionLogMISEVariedh (numSkipRegression);
+		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
+		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
+		sb.append("  C   for MISE  = " + Math.exp(regCoeff[0]) + "\n");
+		sb.append("  beta for MISE = " + -regCoeff[1] + "\n");
+		sb.append("  delta for MISE = " + -regCoeff[2] + "\n");		
+		sb.append("  Total CPU Time = " + cpuTime + "\n");
+		sb.append("-----------------------------------------------------\n");		
+		return sb.toString();
+	}
 	
 	
 	/**

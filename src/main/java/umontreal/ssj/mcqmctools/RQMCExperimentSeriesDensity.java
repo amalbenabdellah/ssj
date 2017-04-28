@@ -24,8 +24,10 @@
  */
 package umontreal.ssj.mcqmctools;
 
+import umontreal.ssj.functionfit.LeastSquares;
 import umontreal.ssj.hups.*;
 import umontreal.ssj.stat.Tally;
+import umontreal.ssj.stat.density.DEHistogram;
 import umontreal.ssj.stat.density.DensityEstimator;
 import umontreal.ssj.util.Chrono;
 import umontreal.ssj.util.Num;
@@ -105,7 +107,10 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
-		log2n[s] = Num.log2(n);		
+		log2n[s] = Num.log2(n);	
+		if ( DE == new DEHistogram(DE.getA(),DE.getB()) )
+		    log2h[s] = (DE.getB()-DE.getA())/DE.getM();
+		log2h[s] = DE.geth();
 		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, n, m, data, DE, numEvalPoints);
 		mean[s] = statReps.average();
@@ -119,6 +124,8 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	 
    cpuTime = timer.format();	   
 }
+   
+   
 
 
 
@@ -136,7 +143,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
     * @param details  If true, gives values (mean, log variance,...) for each n.
     * @return  Report as a string.
     */
-	public String report (boolean details) {
+	public String reportFixedh (boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
@@ -160,6 +167,46 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	}
 	
 	
+	public double[] regressionLogVarianceVariedh (int numSkip) {
+		double[][] x2 = new double[numSets-numSkip][2];
+		double [] y2 = new double[numSets-numSkip];
+		for (int i = 0; i < numSets-numSkip; ++i) {
+			x2[i][0] = log2n[i+numSkip];
+			x2[i][1] = log2h[i+numSkip];			
+			y2[i] = log2Var[i+numSkip];
+		}
+		return LeastSquares.calcCoefficients0(x2, y2);
+	}
+	
+	public String reportVariedH (boolean details, double alpha) {
+		StringBuffer sb = new StringBuffer("");
+		sb.append("\n ============================================= \n");
+		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
+		sb.append("Model: " + model.toString() + "\n");
+		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
+		sb.append(" Point sets: " + this.toString() + "\n\n");
+		sb.append("RQMC integrated variance (IV) \n");
+		if (details) {
+			sb.append("    n      mean       log2(var) \n");
+			for (int s = 0; s < numSets; s++) { // For each cardinality n
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, mean[s]) +
+				          " " + PrintfFormat.f(7, 2, log2Var[s]) + "\n");
+			}
+		}
+		double[] regCoeff = regressionLogVarianceVariedh (numSkipRegression);
+		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
+		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
+		sb.append("  C     = " + Math.exp(regCoeff[0]) + "\n");
+		sb.append("  beta  = " + -regCoeff[1] + "\n");
+		sb.append("  delta = " + -regCoeff[2] + "\n");		
+		sb.append("  gamma = " + (-regCoeff[1])/(alpha - regCoeff[2]) + "\n");	
+		sb.append("  nu    = " + (-alpha * regCoeff[1])/(alpha - regCoeff[2]) + "\n\n");	
+		sb.append("  Total CPU Time = " + cpuTime + "\n");
+		sb.append("-----------------------------------------------------\n");		
+		return sb.toString();
+	}
+	
+	
 	
 	/**
 	 * Performs an experiment (testVarianceRate)  with the given model for each point set series in the given list,
@@ -177,7 +224,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
          	testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
-			sb.append (report (details));			
+			sb.append (reportFixedh (details));			
 		  }
 	    }
 		return sb.toString();

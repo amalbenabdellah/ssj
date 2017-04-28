@@ -41,6 +41,7 @@ public interface DensityEstimator {
      */
 	//public void evalDensity (double[] x, double[] density);
 	public void evalDensity (double[] x, double[] density, double[] data);
+	public double geth();
 	public int getM();
 	public double getA();
 	public double getB();

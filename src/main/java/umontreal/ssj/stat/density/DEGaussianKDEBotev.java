@@ -69,6 +69,9 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	public int getM() {
 		return m;
 	}
+	public double geth(){
+		return bandwidthKDE;
+	}
 	public void setM(int m) {
 		this.m = m;
 	}

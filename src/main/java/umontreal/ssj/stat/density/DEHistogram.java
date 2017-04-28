@@ -53,6 +53,9 @@ public class DEHistogram implements DensityEstimator {
 	public void setM(int m) {
 		this.m = m;
 	}
+	public double geth() {
+		return (b-a)/m;
+	}
 	public ScaledHistogram getHistDensity() {
 		return histDensity;
 	}

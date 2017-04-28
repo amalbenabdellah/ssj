@@ -42,6 +42,9 @@ public class  DEAveragedShiftedHistogram  implements DensityEstimator {
 	public int getM() {
 		return m;
 	}
+	public double geth() {
+		return (b-a)/m;
+	}
 	public void setM(int m) {
 		this.m = m;
 	}
