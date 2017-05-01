@@ -36,7 +36,11 @@ public class RQMCExperimentDensityKnown extends RQMCExperimentDensity {
 	 * Computes and returns an estimate of the integrated variance (IV) 
 	 * for this density estimator, obtained by estimating the variance 
 	 * at numEvalPoints equidistant points over [a,b] and summing up.
+	 * 
+	 * 
 	 */
+	
+
 	
 	public static double computeDensityMISE (MonteCarloModelDensityKnown model, int n, int m,
 			double[][] data, DensityEstimator de, int numEvalPoints) {
@@ -82,9 +86,16 @@ public class RQMCExperimentDensityKnown extends RQMCExperimentDensity {
 				}*/
 						
 			
-			for (int i=0; i<numEvalPoints; i++)
-			evalPoints[i] = data[rep][i];
+			//for (int i=0; i<numEvalPoints; i++)
+			//evalPoints[i] = data[rep][i];
+			
+			double dx=(model.getMax()-model.getMin())/numEvalPoints;
+			evalPoints[0] = model.getMin()+dx*0.5;
+			for (int i=1; i<numEvalPoints; i++)
+					evalPoints[i] = evalPoints[i-1]+dx;
 			de.evalDensity(evalPoints, estimDens, data[rep]);
+			
+			
 			
 			/*for (int i=0; i<numEvalPoints; i++)
 			
