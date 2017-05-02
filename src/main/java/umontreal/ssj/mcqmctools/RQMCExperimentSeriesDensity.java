@@ -162,7 +162,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		}
 		double[] regCoeff = regressionLogVariance (numSkipRegression);
 		sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
-		sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
+		sb.append("    constant term      = " + PrintfFormat.f(8, 5, Math.exp(regCoeff[0])) + "\n\n");
 		sb.append("  Total CPU Time = " + cpuTime + "\n");
 		sb.append("-----------------------------------------------------\n");		
 		return sb.toString();
@@ -199,10 +199,10 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
 		sb.append("  C     = " + Math.exp(regCoeff[0]) + "\n");
-		sb.append("  beta  = " + -regCoeff[1] + "\n");
+		sb.append("  Slope of log2(var) : beta  = " + -regCoeff[1] + "\n");
 		sb.append("  delta = " + -regCoeff[2] + "\n");		
-		sb.append("  gamma = " + (-regCoeff[1])/(alpha - regCoeff[2]) + "\n");	
-		sb.append("  nu    = " + (-alpha * regCoeff[1])/(alpha - regCoeff[2]) + "\n\n");	
+		//sb.append("  gamma = " + (-regCoeff[1])/(alpha - regCoeff[2]) + "\n");	
+		//sb.append("  nu    = " + (-alpha * regCoeff[1])/(alpha - regCoeff[2]) + "\n\n");	
 		sb.append("  Total CPU Time = " + cpuTime + "\n");
 		sb.append("-----------------------------------------------------\n");		
 		return sb.toString();

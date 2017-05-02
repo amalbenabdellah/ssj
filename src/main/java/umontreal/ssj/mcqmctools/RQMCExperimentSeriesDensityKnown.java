@@ -27,6 +27,7 @@ package umontreal.ssj.mcqmctools;
 import umontreal.ssj.functionfit.LeastSquares;
 import umontreal.ssj.hups.*;
 import umontreal.ssj.stat.Tally;
+import umontreal.ssj.stat.density.DEHistogram;
 import umontreal.ssj.stat.density.DensityEstimator;
 import umontreal.ssj.util.Chrono;
 import umontreal.ssj.util.Num;
@@ -106,7 +107,8 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
-		log2n[s] = Num.log2(n);		
+		log2n[s] = Num.log2(n);
+		log2h[s]= -0.27*log2n[s];
 		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
 		MISE[s]=RQMCExperimentDensityKnown.computeDensityMISE (model, n, m, data, DE, numEvalPoints);
 		//mean[s] = statReps.average();
@@ -198,9 +200,12 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		double[] regCoeff = regressionLogMISEVariedh (numSkipRegression);
 		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
-		sb.append("  C   for MISE  = " + Math.exp(regCoeff[0]) + "\n");
+		//sb.append("  C   for MISE  = " + Math.exp(regCoeff[0]) + "\n");
 		sb.append("  beta for MISE = " + -regCoeff[1] + "\n");
-		sb.append("  delta for MISE = " + -regCoeff[2] + "\n");		
+		double delta = alpha - regCoeff[2];
+		sb.append("  delta for MISE = " + delta + "\n");			
+		sb.append("  gamma = " + (-regCoeff[1])/(alpha - regCoeff[2]) + "\n");	
+		sb.append("  nu    = " + (-alpha * regCoeff[1])/(alpha - regCoeff[2]) + "\n\n");
 		sb.append("  Total CPU Time = " + cpuTime + "\n");
 		sb.append("-----------------------------------------------------\n");		
 		return sb.toString();
@@ -224,6 +229,25 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		  for (RQMCPointSet[] ptSeries : list) {			
          	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);
 			sb.append (reportMISE (details));			
+		  }
+	    }
+		return sb.toString();
+	}
+	
+	public String TestRQMCManyPointTypesVariedH (MonteCarloModelDensityKnown model, 
+			ArrayList<RQMCPointSet[]> list, int m,
+			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
+            boolean details) {
+		StringBuffer sb = new StringBuffer("");
+		numReplicates = m;	
+		double[] MISE= new double[numSets];   // Will contain the IV estimates, for each n.
+		for(int i=0; i < listDE.size(); i++) {
+		  for (RQMCPointSet[] ptSeries : list) {			
+         	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);
+         	if ( listDE.get(i).equals(new DEHistogram(model.getMin(),model.getMax())))
+			  sb.append (reportVariedH (details,2));	
+         	else          		
+         		sb.append (reportVariedH (details,4));
 		  }
 	    }
 		return sb.toString();
