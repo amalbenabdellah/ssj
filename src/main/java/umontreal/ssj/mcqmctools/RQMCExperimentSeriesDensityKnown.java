@@ -75,7 +75,8 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
            double[] MISE, RQMCPointSet [] theSets) {
 	   
 		   for(int i=0; i<listDE.size(); i++) 		   
-		   testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, theSets);		   
+		  // testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, theSets);	
+			   testMISERate (model, m, listDE.get(i), numEvalPoints,  MISE, theSets);
 	          	  
    }
    
@@ -86,8 +87,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
    
    
    public void testMISERate (MonteCarloModelDensityKnown model, int m,
-			DensityEstimator DE, int numEvalPoints, 
-           double[] MISE, RQMCPointSet [] theSets) {
+			DensityEstimator DE, int numEvalPoints,  double[] MISE, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
 	Chrono timer = new Chrono();
@@ -102,14 +102,25 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 	System.out.println("    n     CPU time         mean       log2(var) ");	    	
    }
 
+   int r = 2;
   
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
 		log2n[s] = Num.log2(n);
-		log2h[s]= -0.27*log2n[s];
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
+		//log2h[s]= -0.27*log2n[s];
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		
+		if(DE == new DEHistogram(DE.getA(),DE.getB())){
+			DE.seth((DE.getB()-DE.getA())*Math.pow(8, r)*Math.pow(n, 0.27));
+			log2h[s] = Num.log2(DE.getB()-DE.getA()*Math.pow(8, r)*Math.pow(n, 0.27));
+			
+		}
+		
+		DE.seth(Math.pow(n, -0.27)*1/Math.pow(8, r));
+		log2h[s] = -0.27*log2n[s]+Math.log(1/Math.pow(8, r));
+		r++;
 		MISE[s]=RQMCExperimentDensityKnown.computeDensityMISE (model, n, m, data, DE, numEvalPoints);
 		//mean[s] = statReps.average();
 	    log2MISE[s] = Num.log2(MISE[s]);
@@ -132,7 +143,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
    }
 
    
-   public double[] regressionLogMISE (int numSkip) {
+   public double[] regressionLogMISEVariedh (int numSkip) {
 		double[] x2 = new double[numSets-numSkip], y2 = new double[numSets-numSkip];
 		for (int i = 0; i < numSets-numSkip; ++i) {
 			x2[i] = log2n[i+numSkip];
@@ -147,42 +158,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
     * @param details  If true, gives values (mean, log variance,...) for each n.
     * @return  Report as a string.
     */
-	public String reportMISE (boolean details) {
-		StringBuffer sb = new StringBuffer("");
-		sb.append("\n ============================================= \n");
-		sb.append("RQMC simulation for density estimation, with known density: \n ");
-		sb.append("Model: " + model.toString() + "\n");
-		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
-		sb.append(" Point sets: " + this.toString() + "\n\n");
-		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
-		if (details) {
-			sb.append("    n   log2(MISE) \n");
-			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " +
-				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
-			}
-		}
-		double[] regCoeff = regressionLogMISE (numSkipRegression);
-		sb.append("  Slope of log2(MISE) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
-		sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
-		sb.append("  Total CPU Time = " + cpuTime + "\n");
-		sb.append("-----------------------------------------------------\n");		
-		return sb.toString();
-	}
-	
-	
-	public double[] regressionLogMISEVariedh (int numSkip) {
-		double[][] x2 = new double[numSets-numSkip][2];
-		double [] y2 = new double[numSets-numSkip];
-		for (int i = 0; i < numSets-numSkip; ++i) {
-			x2[i][0] = log2n[i+numSkip];
-			x2[i][1] = log2h[i+numSkip];			
-			y2[i] = log2MISE[i+numSkip];
-		}
-		return LeastSquares.calcCoefficients0(x2, y2);
-	}
-	
-	public String reportVariedH (boolean details, double alpha) {
+	public String reportVariedH (boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with known density: \n ");
@@ -198,6 +174,41 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 			}
 		}
 		double[] regCoeff = regressionLogMISEVariedh (numSkipRegression);
+		sb.append("  Slope of log2(MISE) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
+		sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
+		sb.append("  Total CPU Time = " + cpuTime + "\n");
+		sb.append("-----------------------------------------------------\n");		
+		return sb.toString();
+	}
+	
+	
+	public double[] regressionLogMISE (int numSkip) {
+		double[][] x2 = new double[numSets-numSkip][2];
+		double [] y2 = new double[numSets-numSkip];
+		for (int i = 0; i < numSets-numSkip; ++i) {
+			x2[i][0] = log2n[i+numSkip];
+			x2[i][1] = log2h[i+numSkip];			
+			y2[i] = log2MISE[i+numSkip];
+		}
+		return LeastSquares.calcCoefficients0(x2, y2);
+	}
+	
+	public String reportFixedH (boolean details, double alpha) {
+		StringBuffer sb = new StringBuffer("");
+		sb.append("\n ============================================= \n");
+		sb.append("RQMC simulation for density estimation, with known density: \n ");
+		sb.append("Model: " + model.toString() + "\n");
+		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
+		sb.append(" Point sets: " + this.toString() + "\n\n");
+		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
+		if (details) {
+			sb.append("    n   log2(MISE) \n");
+			for (int s = 0; s < numSets; s++) { // For each cardinality n
+				sb.append(" " + size[s] + " " +
+				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+			}
+		}
+		double[] regCoeff = regressionLogMISE(numSkipRegression);
 		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
 		//sb.append("  C   for MISE  = " + Math.exp(regCoeff[0]) + "\n");
@@ -228,7 +239,11 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
          	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);
-			sb.append (reportMISE (details));			
+         	if ( listDE.get(i).equals(new DEHistogram(model.getMin(),model.getMax())))
+  			  sb.append (reportFixedH (details,2));	
+           	else          		
+           	  sb.append (reportFixedH (details,4));
+			
 		  }
 	    }
 		return sb.toString();
@@ -243,11 +258,8 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		double[] MISE= new double[numSets];   // Will contain the IV estimates, for each n.
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
-         	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);
-         	if ( listDE.get(i).equals(new DEHistogram(model.getMin(),model.getMax())))
-			  sb.append (reportVariedH (details,2));	
-         	else          		
-         		sb.append (reportVariedH (details,4));
+         	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, ptSeries);         	
+			sb.append (reportVariedH (details,2));	
 		  }
 	    }
 		return sb.toString();

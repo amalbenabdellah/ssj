@@ -209,7 +209,7 @@ public class RQMCExperimentDensityKnownOld extends RQMCExperimentDensityOld {
 			simulReplicatesRQMC(model, pointSets[s], rand, m, meanReps, meanRepsMISE);
 			// sb.append(" Average centered state = " + meanReps[0] + "\n");
 			// sb.append("\n Average centered square state = " + meanReps[1]);
-			for (int j = 0; j < numStats; j++) {  // Each stat is now a discrepancy.
+			for (int j = 0; j < numStats; j++) {  // Each state is now a discrepancy.
 				log2Stats[j][s] = Num.log2(meanReps[j]);
 	    	    log2StatsMISE[j][s] = Num.log2(meanRepsMISE[j]);
 			}

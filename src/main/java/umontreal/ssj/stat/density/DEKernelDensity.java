@@ -115,6 +115,17 @@ public class DEKernelDensity implements DensityEstimator {
       return computeDensity (dist, kern, h, Y);
    }*/
 
+	
+	public void seth (double h){
+		this.h=h;
+	}
+	
+	public void setA (double a){
+		this.a=a;
+	}
+	public void setB (double b){
+		this.b=b;
+	}
 public double geth() {
 	// TODO Auto-generated method stub
 	return h;

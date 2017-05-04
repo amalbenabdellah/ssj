@@ -10,7 +10,7 @@ import umontreal.ssj.stat.KernelDensityEstimator1d;
  *
  */
 public class DEGaussianKDEBotev implements DensityEstimator {
-	double a,b,bandwidthKDE;
+	double a,b,h;
 	int m;
 	KernelDensityEstimator1d kde;
 
@@ -22,12 +22,12 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		
 	}
 	
-    public DEGaussianKDEBotev (double a, double b, int m, double bandwidthKDE ) {
+    public DEGaussianKDEBotev (double a, double b, int m, double h ) {
     	
     	this.a = a;
 		this.b = b;
 		this.m = m;
-		this.bandwidthKDE = bandwidthKDE;
+		this.h = h;
 		kde = null;
 		
 	}
@@ -48,6 +48,9 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	}
 
 	
+    public void seth(double h) {
+		this.h = h;
+	}
 	public double getA() {
 		return a;
 	}
@@ -61,16 +64,16 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		this.b = b;
 	}
 	public double getBandwidthKDE() {
-		return bandwidthKDE;
+		return h;
 	}
 	public void setBandwidthKDE(double bandwidthKDE) {
-		this.bandwidthKDE = bandwidthKDE;
+		this.h = bandwidthKDE;
 	}
 	public int getM() {
 		return m;
 	}
 	public double geth(){
-		return bandwidthKDE;
+		return h;
 	}
 	public void setM(int m) {
 		this.m = m;

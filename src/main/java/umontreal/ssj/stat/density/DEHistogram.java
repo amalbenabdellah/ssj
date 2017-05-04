@@ -10,13 +10,22 @@ import umontreal.ssj.stat.TallyHistogram;
  * 
  */
 public class DEHistogram implements DensityEstimator {
-	double a,b;
+	double a,b, h;
 	int m;
 	ScaledHistogram histDensity;
 
+	public DEHistogram (double a, double b, double h) {
+		this.a = a;
+		this.b = b;
+		this.h = h;
+		histDensity = null;
+		
+	}
+	
 	public DEHistogram (double a, double b) {
 		this.a = a;
 		this.b = b;
+
 		histDensity = null;
 		
 	}
@@ -38,6 +47,14 @@ public class DEHistogram implements DensityEstimator {
 	public double getA() {
 		return a;
 	}
+	
+	
+	
+	
+	public void seth(double h) {
+		this.h = h;
+	}
+	
 	public void setA(double a) {
 		this.a = a;
 	}

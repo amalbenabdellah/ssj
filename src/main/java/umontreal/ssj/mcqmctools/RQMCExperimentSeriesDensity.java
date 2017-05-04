@@ -102,17 +102,20 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	System.out.println("    n     CPU time         mean       log2(var) ");	    	
    }
 
-  
+    int r=8, l=2;
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
 		log2n[s] = Num.log2(n);	
-		/*if ( DE == new DEHistogram(DE.getA(),DE.getB()) )
-		    //log2h[s] = (DE.getB()-DE.getA())/DE.getM();
-			 log2h[s] = DE.geth();
-		log2h[s] = DE.geth();*/
-		log2h[s]= -0.27*log2n[s];
+		if ( DE == new DEHistogram(DE.getA(),DE.getB()) )
+		    log2h[s] = Math.log((DE.getB()-DE.getA())/Math.pow(8, l));
+			 //log2h[s] = DE.geth();
+		//log2h[s] = DE.geth();		
+		//log2h[s]= r*Math.log(2);
+		log2h[s]= Math.log(1/Math.pow(2,r));
+		l++;
+		r++;
 		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, n, m, data, DE, numEvalPoints);
 		mean[s] = statReps.average();
