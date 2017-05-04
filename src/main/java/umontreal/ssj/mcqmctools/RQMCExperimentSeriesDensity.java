@@ -148,7 +148,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
     * @param details  If true, gives values (mean, log variance,...) for each n.
     * @return  Report as a string.
     */
-	public String reportFixedh (boolean details) {
+	public String reportVarianceFixedh (boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
@@ -183,7 +183,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		return LeastSquares.calcCoefficients0(x2, y2);
 	}
 	
-	public String reportVariedH (boolean details, double alpha) {
+	public String reportVarianceVariedH (boolean details, double alpha) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with unknown density: \n ");
@@ -229,7 +229,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
          	testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
-			sb.append (reportFixedh (details));			
+			sb.append (reportVarianceFixedh (details));			
 		  }
 	    }
 		return sb.toString();
