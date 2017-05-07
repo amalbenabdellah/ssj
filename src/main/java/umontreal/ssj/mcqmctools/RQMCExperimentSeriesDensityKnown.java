@@ -56,12 +56,19 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
     * Constructor with a give series of RQMC point sets.
     *  @param theSets      the RQMC point sets
     */
-   public RQMCExperimentSeriesDensityKnown (RQMCPointSet[] theSets) {
-	   super(theSets);
+	
+	
+	 ArrayList<DensityEstimator> listDE=null ;
+	public double[][] log2MISES = new double[3][] ;		
+	public  double[][] log2VarS = new double[3][] ;
+   public RQMCExperimentSeriesDensityKnown (RQMCPointSet[] theSets, ArrayList<DensityEstimator> listDE) {
+	   super(theSets, listDE);
+	   listDE =new ArrayList<DensityEstimator>();
+	   log2MISES = new double[3][] ;		
+	   log2VarS = new double[3][] ;
+	   this.listDE = listDE;
    }
-   public RQMCExperimentSeriesDensityKnown (ArrayList<RQMCPointSet[]> theSets) {
-	   super(theSets);
-   }
+   
 
 
    /**
@@ -70,7 +77,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
     */
    
    
-   public void testMISERate (MonteCarloModelDensityKnown model, int m,
+   /*public void testMISERate (MonteCarloModelDensityKnown model, int m,
 			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
            double[] MISE, double[] integVariance, RQMCPointSet [] theSets) {
 	   
@@ -78,15 +85,130 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		  // testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, theSets);	
 			   testMISERate (model, m, listDE.get(i), numEvalPoints,  MISE, integVariance,  theSets);
 	          	  
-   }
+   }*/
    
+   
+   
+   
+   public void testMISERateD (MonteCarloModelDensityKnown model, int m,
+		   ArrayList<DensityEstimator> listDE, int numEvalPoints,  double[][] MISE, double[][] integVariance,  RQMCPointSet [] theSets, boolean VariedH) {
+	int n;
+	Tally statReps = new Tally();
+	Chrono timer = new Chrono();
+	numReplicates = m;
+	this.model = model;
+  if (displayExec) {
+  	System.out.println("\n ============================================= ");
+  	System.out.println("RQMC simulation for density estimation, for unknown density:  ");
+  	System.out.println("Model: " + model.toString());
+  	System.out.println(" Number of indep copies m  = " + m);
+  	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
+	System.out.println("    n     CPU time         mean       log2(var) ");	    	
+  }
+
+     log2MISES= new double[listDE.size()][numSets];
+     log2VarS = new double[listDE.size()][numSets];
+  
+	for(int i=0; i<listDE.size(); i++){	
+		int r = 2;
+ 
+	for (int s = 0; s < numSets; s++) { // For each cardinality n
+		n = theSets[s].getNumPoints();
+	
+		size[s] = n;
+		double[][] data = new double[m][];
+		log2n[s] = Num.log2(n);
+		//log2h[s]= -0.27*log2n[s];
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		
+		/*if(listDE.get(i) == new DEHistogram(listDE.get(i).getA(),listDE.get(i).getB())){
+			listDE.get(i).seth((listDE.get(i).getB()-listDE.get(i).getA())*Math.pow(8, r)*Math.pow(n, 0.27));
+			log2h[s] = Num.log2(listDE.get(i).getB()-listDE.get(i).getA()*Math.pow(8, r)*Math.pow(n, 0.27));
+			
+		}*/
+		//log2h[s] = -0.27*log2n[s]+Math.log(1/Math.pow(8, r));
+		if (VariedH == true){
+		
+		listDE.get(i).seth(Math.pow(n, -0.27)*1/Math.pow(8, r));
+		r=+3;
+		}
+		integVariance[i][s]=RQMCExperimentDensity.computeDensityVariance (model, m, data, listDE.get(i), numEvalPoints);
+		MISE[i][s]=RQMCExperimentDensity.computeDensityMISE (model, m, data, listDE.get(i), numEvalPoints);
+		//mean[s] = statReps.average();
+	    log2MISES[i][s] = Num.log2(MISE[i][s]);
+	    log2VarS[i][s] = Num.log2(integVariance[i][s]);
+	    if (displayExec) {
+		   System.out.println("  " + n + "     " + timer.format() + PrintfFormat.f(7, 2,log2VarS[i][s])+
+				      "   " + PrintfFormat.f(7, 2, log2MISES[i][s]));
+	    }
+	}	
+  }
+	 
+  cpuTime = timer.format();	   
+}
+   
+   
+ /*  public void testMISERateVariedH (MonteCarloModelDensityKnown model, int m,
+		   ArrayList<DensityEstimator> listDE, int numEvalPoints,  double[][] MISE, double[][] integVariance,  RQMCPointSet [] theSets) {
+	int n;
+	Tally statReps = new Tally();
+	Chrono timer = new Chrono();
+	numReplicates = m;
+	this.model = model;
+  if (displayExec) {
+  	System.out.println("\n ============================================= ");
+  	System.out.println("RQMC simulation for density estimation, for unknown density:  ");
+  	System.out.println("Model: " + model.toString());
+  	System.out.println(" Number of indep copies m  = " + m);
+  	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
+	System.out.println("    n     CPU time         mean       log2(var) ");	    	
+  }
+
+  int r = 2;
+  
+  for(int i=0; i<listDE.size(); i++){	
+ 
+	for (int s = 0; s < numSets; s++) { // For each cardinality n
+		
+		n = theSets[s].getNumPoints();
+	
+		size[s] = n;
+		double[][] data = new double[m][];
+		log2n[s] = Num.log2(n);
+		//log2h[s]= -0.27*log2n[s];
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		
+		if(listDE.get(i) == new DEHistogram(listDE.get(i).getA(),listDE.get(i).getB())){
+			listDE.get(i).seth((listDE.get(i).getB()-listDE.get(i).getA())*Math.pow(8, r)*Math.pow(n, 0.27));
+			log2h[s] = Num.log2(listDE.get(i).getB()-listDE.get(i).getA()*Math.pow(8, r)*Math.pow(n, 0.27));
+			
+		}
+	
+		
+		listDE.get(i).seth(Math.pow(n, -0.27)*1/Math.pow(8, r));
+		//log2h[s] = -0.27*log2n[s]+Math.log(1/Math.pow(8, r));
+		r++;
+		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, m, data, listDE.get(i), numEvalPoints);
+		MISE[s]=RQMCExperimentDensity.computeDensityMISE (model, m, data, listDE.get(i), numEvalPoints);
+		//mean[s] = statReps.average();
+	    log2MISE[s] = Num.log2(MISE[s]);
+	    log2Var[s] = Num.log2(integVariance[s]);
+	    if (displayExec) {
+		   System.out.println("  " + n + "     " + timer.format() + 
+				      "   " + PrintfFormat.f(7, 2, log2MISE[s]));
+	    }
+	}	
+  }
+	 
+  cpuTime = timer.format();	   
+}*/
    /**
     * Performs an RQMC experiment with the given model, with this series of RQMC point sets.  
     * For each set in the series, computes the average, the variance, its log in base 2.
     */
    
    
-   public void testMISERate (MonteCarloModelDensityKnown model, int m,
+  /* public void testMISERate (MonteCarloModelDensityKnown model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance,  RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
@@ -117,6 +239,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 			log2h[s] = Num.log2(DE.getB()-DE.getA()*Math.pow(8, r)*Math.pow(n, 0.27));
 			
 		}
+	
 		
 		DE.seth(Math.pow(n, -0.27)*1/Math.pow(8, r));
 		log2h[s] = -0.27*log2n[s]+Math.log(1/Math.pow(8, r));
@@ -133,7 +256,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 	}	
 	 
    cpuTime = timer.format();	   
-}
+}*/
 
 
 
@@ -145,14 +268,70 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
    }
 
    
-   public double[] regressionLogMISEVariedh (int numSkip) {
+   /*public double[] regressionLogMISEVariedh (int numSkip) {
 		double[] x2 = new double[numSets-numSkip], y2 = new double[numSets-numSkip];
+		
+		for (int j = 0; j <listDE.size(); ++j){
 		for (int i = 0; i < numSets-numSkip; ++i) {
 			x2[i] = log2n[i+numSkip];
-			y2[i] = log2MISE[i+numSkip];
-		}
+			y2[i] = log2MISES[j][i+numSkip];
+		}}
 		return LeastSquares.calcCoefficients(x2, y2, 1);
+	}*/
+   
+   
+   
+   /*public double[] regressionLogMISEVariedh (int start) {
+		double[] regDataX = new double[listDE.size() * numSets];
+		double[] regDataY = new double[listDE.size()  *numSets];
+		double[] regDataYMISE = new double[listDE.size() * numSets];
+		double[] coef;
+		double logh;
+		for (int j = 0; j < listDE.size(); j++) { 			
+				//logh = Num.log2(listDE.get(j).geth());  
+			for (int s = 0; s < numSets; s++) { // For each cardinality n
+				regDataX[j  * numSets + s] = log2n[start+s];
+				regDataYMISE[j * numSets + s] = log2MISES[j][start+s];
+			}
+		}
+		return  LeastSquares.calcCoefficients(regDataX, regDataYMISE, 1);
+
+	}*/
+   
+   /*public double[] regressionLogMISED (int start) {
+		double[][] regDataX = new double[listDE.size() * numSets-start][2];		
+		double[] regDataYMISE = new double[listDE.size() * numSets-start];
+		
+		double logh;
+		for (int j = 0; j < listDE.size(); j++) { 			
+				logh = Num.log2(listDE.get(j).geth());  
+			for (int s = 0; s < numSets-start; s++) { // For each cardinality n
+				regDataX[j  * numSets + s][0] = log2n[start+s];
+				regDataX[j  * numSets + s][1] = logh;
+				regDataYMISE[j * numSets + s] = log2MISES[j][start+s];
+			}
+		}
+		return  LeastSquares.calcCoefficients0(regDataX, regDataYMISE);
+
+	}*/
+   
+   public double[] regressionLogMISED (int start) {
+		double[][] regDataX = new double[ numSets-start][2];		
+		double[] regDataYMISE = new double[numSets-start];
+		
+		double logh;
+		for (int j = 0; j < listDE.size(); j++) { 			
+				logh = Num.log2(listDE.get(j).geth());  
+			for (int s = 0; s < numSets-start; s++) { // For each cardinality n
+				regDataX[j  * numSets + s][0] = log2n[start+s];
+				regDataX[j  * numSets + s][1] = logh;
+				regDataYMISE[j * numSets + s] = log2MISES[j][start+s];
+			}
+		}
+		return  LeastSquares.calcCoefficients0(regDataX, regDataYMISE);
+
 	}
+   
    
    /**
     * Produces and returns a report on the last experiment.
@@ -160,7 +339,7 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
     * @param details  If true, gives values (mean, log variance,...) for each n.
     * @return  Report as a string.
     */
-	public String reportMISEVariedH (boolean details) {
+	public String reportMISEVariedH (boolean details, ArrayList<DensityEstimator> listDE) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with known density: \n ");
@@ -169,14 +348,16 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		sb.append(" Point sets: " + this.toString() + "\n\n");
 		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
-			
-			sb.append("    n    log2(var)  log2(MISE) \n");
+								
+			for (int i = 0;  i< listDE.size(); i++) { 
+				sb.append("    n  log2(Var)  log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) +
-				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2VarS[i][s]) +
+				          " " + PrintfFormat.f(7, 2, log2MISES[i][s]) + "\n");
+			}
 			}
 		}
-		double[] regCoeff = regressionLogMISEVariedh (numSkipRegression);
+		double[] regCoeff = regressionLogMISED (numSkipRegression);
 		sb.append("  Slope of log2(MISE) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
 		sb.append("  Total CPU Time = " + cpuTime + "\n");
@@ -185,18 +366,19 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 	}
 	
 	
-	public double[] regressionLogMISE (int numSkip) {
+	/*public double[] regressionLogMISE (int numSkip, ArrayList<DensityEstimator> listDE) {
 		double[][] x2 = new double[numSets-numSkip][2];
 		double [] y2 = new double[numSets-numSkip];
+		for(int j=0; j<listDE.size(); j++){
 		for (int i = 0; i < numSets-numSkip; ++i) {
 			x2[i][0] = log2n[i+numSkip];
-			x2[i][1] = log2h[i+numSkip];			
+			x2[i][1] = Num.log2(listDE.get(j).geth());			
 			y2[i] = log2MISE[i+numSkip];
-		}
+		}}
 		return LeastSquares.calcCoefficients0(x2, y2);
-	}
+	}*/
 	
-	public String reportMISEFixedH (boolean details, double alpha) {
+	public String reportMISEFixedH (boolean details, double alpha, ArrayList<DensityEstimator> listDE) {
 		StringBuffer sb = new StringBuffer("");
 		sb.append("\n ============================================= \n");
 		sb.append("RQMC simulation for density estimation, with known density: \n ");
@@ -205,16 +387,18 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 		sb.append(" Point sets: " + this.toString() + "\n\n");
 		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
-			sb.append("    n    log2(var)  log2(MISE) \n");
+			for (int i = 0;  i< listDE.size(); i++) { 
+				sb.append("    n  log2(Var)  log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) +
-				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2VarS[i][s]) +
+				          " " + PrintfFormat.f(7, 2, log2MISES[i][s]) + "\n");
+			}
 			}
 		}
-		double[] regCoeff = regressionLogMISE(numSkipRegression);
+		double[] regCoeff = regressionLogMISED(numSkipRegression);
 		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
-		//sb.append("  C   for MISE  = " + Math.exp(regCoeff[0]) + "\n");
+		sb.append("  Constant   for MISE  = " + regCoeff[0] + "\n");
 		sb.append("  beta for MISE = " + -regCoeff[1] + "\n");
 		double delta = alpha - regCoeff[2];
 		sb.append("  delta for MISE = " + delta + "\n");			
@@ -238,35 +422,44 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
             boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		numReplicates = m;	
-		double[] MISE= new double[numSets];   // Will contain the IV estimates, for each n.
-		double[] IntegVariance= new double[numSets];
-		for(int i=0; i < listDE.size(); i++) {
+		double[][] MISE= new double[listDE.size()][numSets]; //Will contain the IV estimates, for each n.
+		double[][] integVariance= new double[listDE.size()][numSets];
+		//for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
-         	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, IntegVariance, ptSeries);
-         	if ( listDE.get(i).equals(new DEHistogram(model.getMin(),model.getMax())))
-  			  sb.append (reportMISEFixedH (details,2));	
+         	testMISERateD (model, m, listDE, numEvalPoints, MISE, integVariance, ptSeries, true);
+         	for (DensityEstimator lDE : listDE) {
+         	if ( lDE.equals(new DEHistogram(model.getMin(),model.getMax())))
+  			  sb.append (reportMISEFixedH (details,2,listDE));	
            	else          		
-           	  sb.append (reportMISEFixedH (details,4));
+           	  sb.append (reportMISEFixedH (details,4, listDE));
 			
 		  }
-	    }
+		  }
 		return sb.toString();
 	}
 	
-	public String TestRQMCManyPointTypesVariedH (MonteCarloModelDensityKnown model, 
+	public String TestRQMCManyPointTypes (MonteCarloModelDensityKnown model, 
 			ArrayList<RQMCPointSet[]> list, int m,
 			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
-            boolean details) {
+            boolean details, boolean VariedH) {
 		StringBuffer sb = new StringBuffer("");
 		numReplicates = m;	
-		double[] MISE= new double[numSets]; //Will contain the IV estimates, for each n.
-		double[] integVariance= new double[numSets];
-		for(int i=0; i < listDE.size(); i++) {
+		double[][] MISE= new double[listDE.size()][numSets]; //Will contain the IV estimates, for each n.
+		double[][] integVariance= new double[listDE.size()][numSets];
 		  for (RQMCPointSet[] ptSeries : list) {			
-         	testMISERate (model, m, listDE.get(i), numEvalPoints, MISE, integVariance, ptSeries);         	
-			sb.append ( reportMISEVariedH (details));	
+         	testMISERateD (model, m, listDE, numEvalPoints, MISE, integVariance, ptSeries, VariedH);   
+         	if (VariedH == true)
+			sb.append ( reportMISEVariedH (details, listDE));
+         	else {         		
+         		if ( listDE.equals(new DEHistogram(model.getMin(),model.getMax())))
+        			  sb.append (reportMISEFixedH (details,2,listDE));	
+                 	else          		
+                 	  sb.append (reportMISEFixedH (details,4, listDE));
+         		         	
+         	}
+         		
 		  }
-	    }
+	    
 		return sb.toString();
 	}
 	

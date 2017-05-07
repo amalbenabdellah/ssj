@@ -170,7 +170,7 @@ public class RQMCExperimentSeriesDensityF extends RQMCExperimentSeries {
 		//RQMCExperimentDensity.computeDensityVariance(model, n, m,data, de, numEvalPoints);
 		/*integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, n, m,
    			data, de, numEvalPoints);*/
-		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, n, m,
+		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model, m,
    			data, DE, numEvalPoints);
 		
 		//RQMCExperimentDensity.computeDensityVarianceListDE (model, n, m, data, listDE, numEvalPoints, integVariance);
