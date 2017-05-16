@@ -134,8 +134,8 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 				}
 			}
 			
-			/*for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = de.getA() + (i+1-0.5) * (de.getB()-de.getA())/de.getM();*/
+			for (int i=0; i < numEvalPoints; i++)
+				evalPoints[i] = de.getA() + (i+1-0.5) * de.geth();;
 			
 			
 		
@@ -148,13 +148,13 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 				}*/
 						
 			
-			//for (int i=0; i<numEvalPoints; i++)
-			//evalPoints[i] = data[rep][i];
+			for (int i=0; i<numEvalPoints; i++)
+			evalPoints[i] = data[rep][i];
 			
-			double dx=(model.getMax()-model.getMin())/numEvalPoints;
+			/*double dx=(model.getMax()-model.getMin())/numEvalPoints;
 			evalPoints[0] = model.getMin()+dx*0.5;
 			for (int i=1; i<numEvalPoints; i++)
-					evalPoints[i] = evalPoints[i-1]+dx;
+					evalPoints[i] = evalPoints[i-1]+dx;*/
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			
 			
@@ -165,10 +165,10 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			
 	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
 			for (int j = 0; j < numEvalPoints; j++) { 
-				/*x = estimDens[j];				
+				x = estimDens[j];				
 				y = x - meanDens[j];
 				meanDens[j] += y / (double) (rep+1);				
-				varDens[j] += y * (x - meanDens[j]);*/	
+				varDens[j] += y * (x - meanDens[j]);	
 				y = estimDens[j] - model.density(evalPoints[j]);   // model.density(x);
 				miseDens[j] += y * y;
 			}
@@ -184,7 +184,14 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		return sumMISE * (b - a) / (numEvalPoints * (m - 1));   
 		}
 	
-	
+	public static double computeDensityBias (MonteCarloModelDensityKnown model, int m,
+			double[][] data, DensityEstimator de, int numEvalPoints) {
+
+			
+		return   Math.sqrt(computeDensityMISE (model, m,
+				data, de,  numEvalPoints)- computeDensityVariance (model, m,
+						data, de,  numEvalPoints));
+		}
 	
 		
 }

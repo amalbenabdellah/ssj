@@ -18,7 +18,7 @@ public class  DEAveragedShiftedHistogram  implements DensityEstimator {
 	AveragedShiftedHistogram ASH2;
 	
 	
-	DEAveragedShiftedHistogram (double a, double b) {
+	public DEAveragedShiftedHistogram (double a, double b) {
 		this.a = a;
 		this.b = b;
 		histDensity = null;

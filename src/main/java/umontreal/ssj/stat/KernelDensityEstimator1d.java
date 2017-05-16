@@ -316,8 +316,7 @@ public class KernelDensityEstimator1d {
 			weight = weight.multiply(w0);
 		}
 		//Compute x tilde using equation (5.93) in Jain
-		Complex[] ifft = new FastFourierTransformer(DftNormalization.STANDARD)
-				.transform(data_weighted,  TransformType.INVERSE);
+		Complex[] ifft = new FastFourierTransformer(DftNormalization.STANDARD).transform(data_weighted,  TransformType.INVERSE);
 		//Re-order elements of each column according to equations (5.93) and (5.94) in Jain
 		double[] idct = new double[n];
 		for (int i=0; i<n/2; i++) {
