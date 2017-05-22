@@ -1,5 +1,5 @@
 package umontreal.ssj.markovchainrqmc;
-import umontreal.ssj.util.sort.MultiDimComparable;
+ import umontreal.ssj.util.sort.MultiDimComparable;
 
 /**
  * A subclass of Markov chain for which there is a total ordering between the
@@ -32,7 +32,7 @@ public abstract class MarkovChainComparable extends MarkovChain
    /**
     * Returns the dimension of the state.
     */
-   public int getStateDimension() {
+   public int dimension() {
      return stateDim;
   }
 

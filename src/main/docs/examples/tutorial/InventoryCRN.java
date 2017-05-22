@@ -1,4 +1,3 @@
-package tutorial;
 import umontreal.ssj.stat.Tally;
 import umontreal.ssj.util.Chrono;
 

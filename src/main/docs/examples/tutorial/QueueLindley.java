@@ -1,4 +1,3 @@
-package tutorial;
 import umontreal.ssj.stat.*;
 import umontreal.ssj.rng.*;
 import umontreal.ssj.probdist.ExponentialDist;

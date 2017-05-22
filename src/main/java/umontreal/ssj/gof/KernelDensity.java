@@ -38,7 +38,7 @@ import umontreal.ssj.randvar.KernelDensityGen;
  */
 public class KernelDensity {
 
-   public  double estimate (EmpiricalDist dist,
+   private static double estimate (EmpiricalDist dist,
                                    ContinuousDistribution kern,
                                    double h, double y) {
       // Computes and returns the kernel density estimate at $y$, where the 
@@ -66,7 +66,7 @@ public class KernelDensity {
     * bandwidth is @f$h@f$. Returns the estimates as an array of @f$m@f$
     * values.
     */
-   public  double[] computeDensity (EmpiricalDist dist,
+   public static double[] computeDensity (EmpiricalDist dist,
                                           ContinuousDistribution kern,
                                           double h, double[] Y) {
       int m = Y.length;
@@ -84,7 +84,7 @@ public class KernelDensity {
     * {@link umontreal.ssj.randvar.KernelDensityGen.getBaseBandwidth(EmpiricalDist)
     * getBaseBandwidth(dist)} in package `randvar`.
     */
-   public  double[] computeDensity (EmpiricalDist dist,
+   public static double[] computeDensity (EmpiricalDist dist,
                                           ContinuousDistribution kern,
                                           double[] Y) {
       double h = KernelDensityGen.getBaseBandwidth(dist);

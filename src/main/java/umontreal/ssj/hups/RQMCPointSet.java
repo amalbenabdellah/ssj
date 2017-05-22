@@ -97,12 +97,4 @@ public class RQMCPointSet {
       return rand;
    }
 
-   /**
-    * Returns the number of points in the associated point set.
-    *  @return the number of points in point set
-    */
-   public int getNumPoints() {
-      return set.getNumPoints();
-   }
-
 }

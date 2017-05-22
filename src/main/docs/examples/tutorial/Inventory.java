@@ -1,4 +1,3 @@
-package tutorial;
 import umontreal.ssj.rng.*;
 import umontreal.ssj.randvar.*;
 import umontreal.ssj.probdist.PoissonDist;
