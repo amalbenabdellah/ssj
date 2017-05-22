@@ -64,7 +64,7 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 					max = d;
 				}
 			}
-			
+		
 			/*for (int i=0; i < numEvalPoints; i++)
 				evalPoints[i] = de.getA() + (i+1-0.5) * (de.getB()-de.getA())/de.getM();*/
 			
@@ -79,8 +79,13 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 				}*/
 						
 			
-			for (int i=0; i<numEvalPoints; i++)
-			evalPoints[i] = data[rep][i];
+			/*for (int i=0; i<numEvalPoints; i++)
+			evalPoints[i] = data[rep][i];*/
+			
+
+			for (int i=0; i < numEvalPoints; i++)
+				evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
+			
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			
 			/*for (int i=0; i<numEvalPoints; i++)
@@ -103,6 +108,13 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			sumVar += varDens[i];		
 		return sumVar * (b - a) / (numEvalPoints * (m - 1));   // Empirical integrated variance.
 	}
+	
+	/**
+	 * Takes data from previous simulation (m replicates, n points each)
+	 * and a density estimator de.
+	 * Computes and returns an estimate of the mean integrated square error (MISE) 
+	 * for this density estimator.
+	 */
 	
 	public static double computeDensityMISE (MonteCarloModelDensityKnown model, int m,
 			double[][] data, DensityEstimator de, int numEvalPoints) {
@@ -133,9 +145,11 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 					max = d;
 				}
 			}
+			/*for (int i=0; i<numEvalPoints; i++)
+				evalPoints[i] = data[rep][i];*/
 			
 			for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = de.getA() + (i+1-0.5) * de.geth();;
+				evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
 			
 			
 		
@@ -147,10 +161,7 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 					
 				}*/
 						
-			
-			for (int i=0; i<numEvalPoints; i++)
-			evalPoints[i] = data[rep][i];
-			
+		
 			/*double dx=(model.getMax()-model.getMin())/numEvalPoints;
 			evalPoints[0] = model.getMin()+dx*0.5;
 			for (int i=1; i<numEvalPoints; i++)
@@ -188,10 +199,11 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			double[][] data, DensityEstimator de, int numEvalPoints) {
 
 			
-		return   Math.sqrt(computeDensityMISE (model, m,
+		return   computeDensityMISE (model, m,
 				data, de,  numEvalPoints)- computeDensityVariance (model, m,
-						data, de,  numEvalPoints));
+						data, de,  numEvalPoints);
 		}
+	
 	
 		
 }

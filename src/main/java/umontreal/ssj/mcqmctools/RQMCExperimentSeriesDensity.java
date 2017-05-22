@@ -62,20 +62,27 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    /**
     * Constructor with a give series of RQMC point sets.
     *  @param theSets      the RQMC point sets
-    */double[] log2h = new double[numSets]; // log_2 of h
+    */
+	double[] log2h; // log_2 of h
 	public double[][] meanD ;
 	public double[][] log2VarS; 
+	double[] log2IV;
+	
 	
    public RQMCExperimentSeriesDensity (RQMCPointSet[] theSets) {
 	   super(theSets);
 	  
-	   log2h = new double[numSets];  //   log_2 of the bandwidth
+	   log2h = new double[numSets];  
+	   
+	   log2IV = new double[numSets];
 	   
 	   
    }
    public RQMCExperimentSeriesDensity (ArrayList<RQMCPointSet[]> theSets) {
 	   super(theSets);
-	   log2h = new double[numSets];  //   log_2 of the bandwidth
+	   log2h = new double[numSets];  
+	  
+	   log2IV = new double[numSets];
    }
 
 
@@ -89,6 +96,8 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
            double[][] integVariance, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -98,7 +107,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    	System.out.println("Model: " + model.toString());
    	System.out.println(" Number of indep copies m  = " + m);
    	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
-	System.out.println("    n     CPU time         mean       log2(var) ");	    	
+	System.out.println("    n     CPU time         mean       log2(IV) ");	    	
    }
 
 
@@ -107,6 +116,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		
 		log2n[s] = Num.log2(n);	
 		meanD= new double[listDE.size()][numSets];
 		log2VarS= new double [listDE.size()][numSets];
@@ -137,6 +147,8 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
            double[] integVariance, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -146,7 +158,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    	System.out.println("Model: " + model.toString());
    	System.out.println(" Number of indep copies m  = " + m);
    	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
-	System.out.println("    n     CPU time         mean       log2(var) ");	    	
+	System.out.println("    n     CPU time    Var  KS CVM    log2(IV) ");	    	
    }
 
 
@@ -155,14 +167,16 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		size[s] = n;
 		double[][] data = new double[m][];
 		log2n[s] = Num.log2(n);	
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
-		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
 		mean[s] = statReps.average();
-	    log2Var[s] = Num.log2(integVariance[s]);
+		variance [s] = statReps.variance();
+		//KS[s] = statKS.average();
+		//CVM[s] = statCVM.average();
+		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
+	    log2IV[s] = Num.log2(integVariance[s]);
 	    if (displayExec) {
 		   System.out.println("  " + n + "     " + timer.format() + 
-		              "   " + PrintfFormat.f(10, 5, mean[s]) + 
-				      "   " + PrintfFormat.f(7, 2, log2Var[s]));
+				      "   " + PrintfFormat.f(7, 2, log2IV[s]));
 	    }
 	}	
 	 
@@ -175,6 +189,8 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
            double[] integVariance, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -184,14 +200,16 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    	System.out.println("Model: " + model.toString());
    	System.out.println(" Number of indep copies m  = " + m);
    	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
-	System.out.println("    n     CPU time         mean       log2(var) ");	    	
+	System.out.println("    n     CPU time      log2(IV) ");	    	
    }
 
-    int  l=3, t=-5;
+    double  l=1;
+    		// t=-5;
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		
 		log2n[s] = Num.log2(n);	
 		
 	
@@ -208,9 +226,11 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 			
 		}
 		else {
-			log2h[s] =t*Math.log(2);
+			log2h[s] =- Math.log(Math.pow(4, l));
+			l=l+0.1;
+			/*log2h[s] =t*Math.log(2);
 		    DE.seth(t* Math.log(2));	
-		    t++;
+		    t++;*/
 		}
 			
 		
@@ -220,11 +240,13 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
 		
 		mean[s] = statReps.average();
-	    log2Var[s] = Num.log2(integVariance[s]);
+		variance [s] = statReps.variance();
+		//KS[s] = statKS.average();
+		//CVM[s] = statCVM.average();
+	    log2IV[s] = Num.log2(integVariance[s]);
 	    if (displayExec) {
 		   System.out.println("  " + n + "     " + timer.format() + 
-		              "   " + PrintfFormat.f(10, 5, mean[s]) + 
-				      "   " + PrintfFormat.f(7, 2, log2Var[s]));
+				      "   " + PrintfFormat.f(7, 2, log2IV[s]));
 	    }
 	}	
 	 
@@ -278,7 +300,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		for (int i = 0; i < numSets-numSkip; ++i) {
 			x2[i][0] = log2n[i+numSkip];
 			x2[i][1] = log2h[i+numSkip];			
-			y2[i] = log2Var[i+numSkip];
+			y2[i] = log2IV[i+numSkip];
 		}
 		return LeastSquares.calcCoefficients0(x2, y2);
 	}
@@ -303,17 +325,17 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		sb.append(" Point sets: " + this.toString() + "\n\n");
 		sb.append("RQMC integrated variance (IV) \n");
 		if (details) {
-			sb.append("    n      mean       log2(var) \n");
+			sb.append("    n     log2(IV) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, mean[s]) +
-				          " " + PrintfFormat.f(7, 2, log2Var[s]) + "\n");
+				sb.append(" " + size[s] + 
+				          " " + PrintfFormat.f(7, 2, log2IV[s]) + "\n");
 			}
 		}
 		double[] regCoeff = regressionLogVarianceVariedhn (numSkipRegression);
 		//sb.append("  Slope of log2(var) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
 		//sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
 		sb.append("  C     = " + Math.exp(regCoeff[0]) + "\n");
-		sb.append("  Slope of log2(var) : beta  = " + -regCoeff[1] + "\n");
+		sb.append("  Slope of log2(IV) : beta  = " + -regCoeff[1] + "\n");
 		sb.append("  delta = " + -regCoeff[2] + "\n");		
 		//sb.append("  gamma = " + (-regCoeff[1])/(alpha - regCoeff[2]) + "\n");	
 		//sb.append("  nu    = " + (-alpha * regCoeff[1])/(alpha - regCoeff[2]) + "\n\n");	
@@ -322,6 +344,29 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		return sb.toString();
 	}
 	
+	public String reportD(boolean details) {
+		StringBuffer sb = new StringBuffer("");
+		sb.append("\n ============================================= \n");
+		sb.append("RQMC simulation for density estimation: \n ");
+		sb.append("Model: " + model.toString() + "\n");
+		sb.append(" Number of indep copies m  = " + numReplicates + "\n");
+		sb.append(" Point sets: " + this.toString() + "\n\n");
+		sb.append("RQMC variance \n");
+		if (details) {
+			sb.append("    n      log2(IV) \n");
+			for (int s = 0; s < numSets; s++) { // For each cardinality n
+				sb.append(" " + size[s] + 
+				          " " + PrintfFormat.f(7, 2, log2IV[s]) + "\n");
+			}
+		}
+		double[] regCoeff = regressionLogVariance (numSkipRegression);
+		
+		sb.append("  Slope of log2(IV) = " + PrintfFormat.f(8, 5, regCoeff[1]) + "\n");
+		sb.append("    constant term      = " + PrintfFormat.f(8, 5, regCoeff[0]) + "\n\n");
+		sb.append("  Total CPU Time = " + cpuTime + "\n");
+		sb.append("-----------------------------------------------------\n");		
+		return sb.toString();
+	}
 	
 	
 	/**
@@ -340,9 +385,9 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {			
          	this.testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
-			sb.append (report (details));	
-			 makePlotsVar (numSets, m, (model.toString()).split(" ")[0], " ");
-			 System.out.println("test");
+			sb.append (reportD (details));	
+			makePlotsVar (numSets, m, (model.toString()).split(" ")[0], " ");
+			//System.out.println("test");
 		  }
 	    }
 		return sb.toString();
@@ -376,7 +421,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		    
 			//for (int j = 3; j < numStats; j++)
 				// chart.add(log2n, log2StatsMISE[j], statNames[j], " ");
-			    chart.add(log2n, log2Var, " ", " ");
+			    chart.add(log2n, log2IV, " ", " ");
 			FileWriter file = new FileWriter(descModel + "_" + descPoints + "_Var.tex");
 			file.write(chart.toLatex(12, 8));
 			file.close();

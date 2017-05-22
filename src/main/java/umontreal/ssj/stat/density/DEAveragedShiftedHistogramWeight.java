@@ -9,16 +9,17 @@ import umontreal.ssj.stat.TallyHistogram;
 * An averaged shifted histogram used a a density estimator.
 * 
 */
-public class  DEAveragedShiftedHistogram  implements DensityEstimator {
+public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	double a,b;
 	int m, r;
 	ScaledHistogram histDensity;
 	ScaledHistogram histAsh;
 	AveragedShiftedHistogram ASH;
 	AveragedShiftedHistogram ASH2;
+	double[]  weight;
 	
 	
-	public DEAveragedShiftedHistogram (double a, double b) {
+	public DEAveragedShiftedHistogramWeight (double a, double b) {
 		this.a = a;
 		this.b = b;
 		histDensity = null;
@@ -71,13 +72,17 @@ public class  DEAveragedShiftedHistogram  implements DensityEstimator {
 	public void setHistAsh(ScaledHistogram histAsh) {
 		this.histAsh = histAsh;
 	}
-	public DEAveragedShiftedHistogram (double a, double b, int m, int r) {
-	this.a = a;
-	this.b = b;
-	this.m = m;
-	this.r = r;
-	histDensity = null;
-	histAsh = null;
+	public DEAveragedShiftedHistogramWeight (double a, double b, int m, int r) {
+		this.a = a;
+		this.b = b;
+		this.m = m;
+		this.r = r;
+		histDensity = null;
+		histAsh = null;
+
+	weight= new double[r];
+	for( int j=0; j< r; j++)
+		weight[j] = 1.0- (double) (j*j)/((double) (r*r));
 
 	}
 	public void setRange(double a, double b) {
@@ -104,7 +109,7 @@ public class  DEAveragedShiftedHistogram  implements DensityEstimator {
 		TallyHistogram hist = new TallyHistogram(a,b,m*r);
 	    hist.fillFromArray(x);
 		ASH = new AveragedShiftedHistogram(hist,1.0);
-		ASH2 = ASH.averageShiftedHistogramTrunc(r);
+		ASH2 = ASH.averageShiftedHistogramTrunc(r, weight);
 		ASH2.rescale(1.0);
 	}
 

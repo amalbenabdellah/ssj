@@ -139,7 +139,9 @@ public class RQMCExperimentSeriesDensityF extends RQMCExperimentSeries {
            double[] integVariance, RQMCPointSet [] theSets) {
 	int n;
 	//integVariance = new double[numSets];
-	Tally statReps = new Tally();
+	Tally statMean = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -161,10 +163,12 @@ public class RQMCExperimentSeriesDensityF extends RQMCExperimentSeries {
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		double[][] KS = new double[m][];
+		double[][] CVM = new double[m][];
 		log2n[s] = Num.log2(n);
 		// System.out.println(" n = " + n + ", Lg n = " + log2n[s] + "\n"); // ****
 		// System.out.println("  " + n + "     " + timer.format());
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statMean, data);
 		// System.out.println(" data " + Arrays.toString(data[0]));
 		//System.out.println(" data1 " + data[0][0]);
 		//RQMCExperimentDensity.computeDensityVariance(model, n, m,data, de, numEvalPoints);
@@ -175,7 +179,7 @@ public class RQMCExperimentSeriesDensityF extends RQMCExperimentSeries {
 		
 		//RQMCExperimentDensity.computeDensityVarianceListDE (model, n, m, data, listDE, numEvalPoints, integVariance);
 		//System.out.println(" integvariance " +integVariance[0]);
-		mean[s] = statReps.average();
+		mean[s] = statMean.average();
 	    log2Var[s] = Num.log2(integVariance[s]);
 	   // System.out.println("  "+log2Var[s]);
 	    if (displayExec) {

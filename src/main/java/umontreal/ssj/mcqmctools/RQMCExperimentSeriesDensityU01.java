@@ -56,7 +56,7 @@ import cern.colt.Arrays;
  * linear regression of log(variance) as a function of log(n). 
  */
 
-public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensity {
+public class RQMCExperimentSeriesDensityU01 extends RQMCExperimentSeriesDensityKnown {
 
 
    /**
@@ -68,19 +68,23 @@ public class RQMCExperimentSeriesDensityKnown extends RQMCExperimentSeriesDensit
 double[] log2MISE = new double[numSets]; // log_2 of MISE
 public double[][] meanD ;
 public double[][] log2MISES;
-
+public double[] KS ;
+public double[] CVM ;
 	
 	double[] log2bias = new double[numSets]; // log_2 of h
-   public RQMCExperimentSeriesDensityKnown (RQMCPointSet[] theSets) {
+   public RQMCExperimentSeriesDensityU01 (RQMCPointSet[] theSets) {
 	   super(theSets);
 	   log2MISE = new double[numSets]; // log_2 of the MISE
 	   log2bias = new double[numSets];  //   log_2 of the bias
-	   
+	   KS = new double[numSets];
+	   CVM = new double[numSets];
    }
-   public RQMCExperimentSeriesDensityKnown (ArrayList<RQMCPointSet[]> theSets) {
+   public RQMCExperimentSeriesDensityU01 (ArrayList<RQMCPointSet[]> theSets) {
 	   super(theSets);
 	   log2MISE = new double[numSets]; // log_2 of the MISE
 	   log2bias = new double[numSets];  //   log_2 of the bias
+	   KS = new double[numSets];
+	   CVM = new double[numSets];
 	   
    }
 
@@ -91,7 +95,7 @@ public double[][] log2MISES;
     * For each set in the series, computes the average, the variance, its log in base 2.
     */
    
-   public void testMISERateD (MonteCarloModelDensityKnown model, int m,
+   public void testMISERateD (MonteCarloModelDensityU01 model, int m,
 		   ArrayList<DensityEstimator> listDE, int numEvalPoints,  double[][] MISE, double[][] integVariance,  RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();	
@@ -148,7 +152,7 @@ public double[][] log2MISES;
     */
    
    
-   public void testMISERate (MonteCarloModelDensityKnown model, int m,
+   public void testMISERate (MonteCarloModelDensityU01 model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance, double[] bias, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
@@ -196,7 +200,7 @@ public double[][] log2MISES;
 }
 
 
-   public void testMISERateVariedhn (MonteCarloModelDensityKnown model, int m,
+   public void testMISERateVariedhn (MonteCarloModelDensityU01 model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance, double[] bias, RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
@@ -225,7 +229,7 @@ public double[][] log2MISES;
 	
 		log2n[s] = Num.log2(n);
 		//log2h[s]= -0.27*log2n[s];
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		RQMCExperiment.simulReplicatesRQMCSaveU01 (model, theSets[s], m, statReps, statKS, statCVM, data);	
 		
 		
 		
@@ -256,8 +260,8 @@ public double[][] log2MISES;
 		//bias[s]=RQMCExperimentDensity.computeDensityMISE (model,  m, data, DE, numEvalPoints)-variance[s];
 		//bias[s] = statReps.average();
 		//mean[s] = statReps.average();
-		//KS[s] = statKS.average();
-		//CVM[s] = statCVM.average();
+		KS[s] = statKS.average();
+		CVM[s] = statCVM.average();
 	    log2MISE[s] = Num.log2(MISE[s]);
 	    log2IV[s] = Num.log2(integVariance[s]);
 	    log2bias[s]= Num.log2(bias[s]);
@@ -270,7 +274,7 @@ public double[][] log2MISES;
   cpuTime = timer.format();	   
 }
    
-   public void testMISERateOptimal (MonteCarloModelDensityKnown model, int m,
+   public void testMISERateOptimal (MonteCarloModelDensityU01 model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance, double[] bias, RQMCPointSet [] theSets) {
 	int n;
 	int r=4;
@@ -328,9 +332,7 @@ public double[][] log2MISES;
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
 		size[s] = n;
-		double[][] data = new double[m][];
-		/*double[][] KS = new double[m][];
-		double[][] CVM = new double[m][];*/
+		double[][] data = new double[m][];		
 		log2n[s] = Num.log2(n);
 		//log2h[s]= -0.27*log2n[s];
 		
@@ -341,12 +343,12 @@ public double[][] log2MISES;
 		//DE.seth(Math.pow(n, -0.27)*1/Math.pow(8, r));
 		//DE.seth(kappa*Math.pow(n, -gamma));
 		DE.seth(1/Math.pow(8, r)*Math.pow(n, -gamma));
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		RQMCExperiment.simulReplicatesRQMCSaveU01 (model, theSets[s], m, statReps, statKS, statCVM, data);	
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
 		MISE[s]=RQMCExperimentDensity.computeDensityMISE (model, m, data, DE, numEvalPoints);
 		bias[s]=RQMCExperimentDensity.computeDensityBias (model,  m, data, DE, numEvalPoints);
-		//KS[s] = statKS.average();
-		//CVM[s] = statCVM.average();
+		KS[s] = statKS.average();
+		CVM[s] = statCVM.average();
 		System.out.println("MI"+MISE[s] );
 		//mean[s] = statReps.average();
 	    log2MISE[s] = Num.log2(MISE[s]);

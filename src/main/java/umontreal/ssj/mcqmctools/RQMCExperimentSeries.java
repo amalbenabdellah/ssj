@@ -58,7 +58,7 @@ public class RQMCExperimentSeries {
 	double[] log2Var = new double[numSets]; // log_2 of variance
 	/*double[] log2MISE = new double[numSets]; // log_2 of MISE
 	double[] log2h = new double[numSets]; // log_2 of MISE
-*/	boolean displayExec = false;   // When true, prints a display of execution in real time
+*/	public boolean displayExec = false;   // When true, prints a display of execution in real time
 	int numReplicates;    // last value of m
 	MonteCarloModelDouble model;
 	int numSkipRegression = 0; // Number of values of n that are skipped for the regression

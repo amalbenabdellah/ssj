@@ -101,7 +101,9 @@ public class RQMCExperimentSeriesDensity2 extends RQMCExperimentSeries {
    public void testVarianceRate (MonteCarloModelDensityKnown model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance,  RQMCPointSet [] theSets, boolean VariedH) {
 	int n;
-	Tally statReps = new Tally();
+	Tally statMean = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -120,9 +122,11 @@ public class RQMCExperimentSeriesDensity2 extends RQMCExperimentSeries {
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		double[][] KS = new double[m][];
+		double[][] CVM = new double[m][];
 		log2n[s] = Num.log2(n);
 		//log2h[s]= -0.27*log2n[s];
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statMean, data);	
 		
 		if (VariedH==true){
 		
@@ -159,7 +163,9 @@ public class RQMCExperimentSeriesDensity2 extends RQMCExperimentSeries {
 		   ArrayList<DensityEstimator> listDE, int numEvalPoints, 
            double[][] integVariance, RQMCPointSet [] theSets) {
 	int n;
-	Tally statReps = new Tally();
+	Tally statMean = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -179,6 +185,8 @@ public class RQMCExperimentSeriesDensity2 extends RQMCExperimentSeries {
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		double[][] KS = new double[m][];
+		double[][] CVM = new double[m][];
 		log2n[s] = Num.log2(n);	
 		/*if ( DE == new DEHistogram(DE.getA(),DE.getB()) )
 		    log2h[s] = Math.log((DE.getB()-DE.getA())/Math.pow(8, l));
@@ -196,9 +204,9 @@ public class RQMCExperimentSeriesDensity2 extends RQMCExperimentSeries {
 		//log2h[s]= Math.log(DE.geth());
 		meanD= new double[listDE.size()][numSets];
 		log2VarS= new double [listDE.size()][numSets];
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statMean, data);		
 		integVariance[i][s]=RQMCExperimentDensity.computeDensityVariance (model, m, data, listDE.get(i), numEvalPoints);
-		meanD[i][s] = statReps.average();
+		meanD[i][s] = statMean.average();
 	    log2VarS[i][s] = Num.log2(integVariance[i][s]);
 	    if (displayExec) {
 	    	

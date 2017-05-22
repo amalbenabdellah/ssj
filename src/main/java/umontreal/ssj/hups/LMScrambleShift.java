@@ -67,5 +67,7 @@ public class LMScrambleShift extends RandomShift {
                                             " can only randomize a DigitalNet");
       }
    }
+   
+   
 
 }

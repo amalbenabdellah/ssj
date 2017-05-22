@@ -94,7 +94,9 @@ public class RQMCExperimentSeriesDensityKnown2 extends RQMCExperimentSeriesDensi
    public void testMISERate (MonteCarloModelDensityKnown model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance,  RQMCPointSet [] theSets, boolean VariedH) {
 	int n;
-	Tally statReps = new Tally();
+	Tally statMean = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -113,8 +115,10 @@ public class RQMCExperimentSeriesDensityKnown2 extends RQMCExperimentSeriesDensi
 		n = theSets[s].getNumPoints();
 		size[s] = n;
 		double[][] data = new double[m][];
+		double[][] KS = new double[m][];
+		double[][] CVM = new double[m][];
 		log2n[s] = Num.log2(n);
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statMean, data);	
 		
 		if (VariedH==true){
 		
@@ -149,7 +153,9 @@ public class RQMCExperimentSeriesDensityKnown2 extends RQMCExperimentSeriesDensi
    public void testMISERateD (MonteCarloModelDensityKnown model, int m,
 		   ArrayList<DensityEstimator> listDE, int numEvalPoints,  double[][] MISE, double[][] integVariance,  RQMCPointSet [] theSets, boolean VariedH) {
 	int n;
-	Tally statReps = new Tally();
+	Tally statMean = new Tally();
+	Tally statKS = new Tally();
+	Tally statCVM = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
@@ -175,9 +181,11 @@ public class RQMCExperimentSeriesDensityKnown2 extends RQMCExperimentSeriesDensi
 	
 		size[s] = n;
 		double[][] data = new double[m][];
+		double[][] KS = new double[m][];
+		double[][] CVM = new double[m][];
 		log2n[s] = Num.log2(n);
 		//log2h[s]= -0.27*log2n[s];
-		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
+		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statMean, data);	
 		
 		/*if(listDE.get(i) == new DEHistogram(listDE.get(i).getA(),listDE.get(i).getB())){
 			listDE.get(i).seth((listDE.get(i).getB()-listDE.get(i).getA())*Math.pow(8, r)*Math.pow(n, 0.27));
