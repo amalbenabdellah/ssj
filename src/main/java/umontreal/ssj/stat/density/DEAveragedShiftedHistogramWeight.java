@@ -116,7 +116,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	// Evaluate  the density  at a point
 	
 	public double evalDensity(double x, int n) {
-		double h = (b - a)/ m;	
+		double h = (b - a)/ r*m;	
 		//double evaldens = ASH2.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
 		//double evaldens = histAsh.getHeight(x);
 		double evaldens = histAsh.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
