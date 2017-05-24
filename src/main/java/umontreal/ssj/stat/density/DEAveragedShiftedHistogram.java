@@ -93,27 +93,28 @@ public class  DEAveragedShiftedHistogram  implements DensityEstimator {
 	
 	public void constructDensity(double[] x) {
 		
-		/*TallyHistogram hist = new TallyHistogram(a,b,m);
+		TallyHistogram hist = new TallyHistogram(a,b,m*r);
 		hist.fillFromArray(x);
 		
 		histDensity=new ScaledHistogram(hist,1.0);
-		ScaledHistogram histAsh=histDensity.averageShiftedHistogramTrunc(r);
-		histAsh.rescale(1.0);*/
+	    histAsh=histDensity.averageShiftedHistogramTrunc(r);
+		histAsh.rescale(1.0);
 		
 		
-		TallyHistogram hist = new TallyHistogram(a,b,m*r);
+		/*TallyHistogram hist = new TallyHistogram(a,b,m*r);
 	    hist.fillFromArray(x);
 		ASH = new AveragedShiftedHistogram(hist,1.0);
 		ASH2 = ASH.averageShiftedHistogramTrunc(r);
-		ASH2.rescale(1.0);
+		ASH2.rescale(1.0);*/
 	}
 
 	// Evaluate  the density  at a point
 	
 	public double evalDensity(double x, int n) {
 		double h = (b - a)/ m;	
-		double evaldens = ASH2.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
+		//double evaldens = ASH2.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
 		//double evaldens = histAsh.getHeight(x);
+		double evaldens = histAsh.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
 		return evaldens;
 	}
 	

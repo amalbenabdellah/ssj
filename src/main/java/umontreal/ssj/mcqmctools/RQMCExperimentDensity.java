@@ -124,7 +124,9 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		// the number of bins of the histogram.
 		if ( de == new DEHistogram(de.getA(),de.getB()) )
 			//numEvalPoints = de.getM();
-			numEvalPoints = (int) (de.geth()/(de.getB()-de.getA()));
+			numEvalPoints = (int) ((de.getB()-de.getA())/de.geth());
+		
+		//System.out.println("NumEvalPoints"+ numEvalPoints);
 		
 		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
 		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
