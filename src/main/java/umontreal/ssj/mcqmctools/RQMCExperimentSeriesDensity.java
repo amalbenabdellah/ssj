@@ -111,9 +111,10 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    }
 
 
-    for(int i=0; i<listDE.size(); i++){	
+    
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
+		for(int i=0; i<listDE.size(); i++){	
 		size[s] = n;
 		double[][] data = new double[m][];
 		

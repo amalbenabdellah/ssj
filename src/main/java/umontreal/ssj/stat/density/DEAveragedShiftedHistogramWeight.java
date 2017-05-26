@@ -14,8 +14,8 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	int m, r;
 	ScaledHistogram histDensity;
 	ScaledHistogram histAsh;
-	AveragedShiftedHistogram ASH;
-	AveragedShiftedHistogram ASH2;
+	//AveragedShiftedHistogram ASH;
+	//AveragedShiftedHistogram ASH2;
 	double[]  weight;
 	
 	
@@ -24,8 +24,8 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		this.b = b;
 		histDensity = null;
 		histAsh = null;
-		ASH = null;
-		ASH2 = null;
+		//ASH = null;
+		//ASH2 = null;
 		
 	}
 	
@@ -98,7 +98,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	
 	public void constructDensity(double[] x) {
 		
-		TallyHistogram hist = new TallyHistogram(a,b,m*r);
+		TallyHistogram hist = new TallyHistogram(a,b,m);
 		hist.fillFromArray(x);
 		
 		histDensity=new ScaledHistogram(hist,1.0);

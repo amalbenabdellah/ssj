@@ -110,16 +110,10 @@ public double[][] log2MISES;
   }
 
      log2MISES= new double[listDE.size()][numSets];
-     log2VarS = new double[listDE.size()][numSets];
-     
- 
-  
-	for(int i=0; i<listDE.size(); i++){	
-		
- 
+     log2VarS = new double[listDE.size()][numSets];   
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
-	
+		for(int i=0; i<listDE.size(); i++){	
 		size[s] = n;
 		double[][] data = new double[m][];
 		

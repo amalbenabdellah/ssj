@@ -407,9 +407,9 @@ public double[] CVM ;
 		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
 			
-			sb.append("    n    log2(IV)  log2(MISE) \n");
+			sb.append("    n    log2(IV)  log2(MISE) KS CVM  \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2IV[s]) +
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, KS[s]) + " " + PrintfFormat.f(10, 5, CVM[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +
 				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
 			}
 		}
@@ -461,9 +461,9 @@ public double[] CVM ;
 		sb.append(" Point sets: " + this.toString() + "\n\n");
 		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
-			sb.append("    n    log2(IV)  log2(MISE) \n");
+			sb.append("    n    KS CVM log2(IV)  log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2IV[s]) +
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, KS[s]) + " " + PrintfFormat.f(10, 5, CVM[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +
 				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
 			}
 		}
@@ -491,9 +491,9 @@ public double[] CVM ;
 		sb.append(" Point sets: " + this.toString() + "\n\n");
 		sb.append("RQMC Mean Integrated Square Error (MISE) \n");
 		if (details) {
-			sb.append("    n    log2(IV)  log2(MISE) \n");
+			sb.append("    n    KS CVM log2(IV)  log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
-				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2IV[s]) +
+				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, KS[s]) + " " + PrintfFormat.f(10, 5, CVM[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +
 				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
 			}
 		}
