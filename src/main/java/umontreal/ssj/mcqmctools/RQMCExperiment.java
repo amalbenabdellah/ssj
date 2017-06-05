@@ -92,17 +92,16 @@ public class RQMCExperiment extends MonteCarloExperiment {
 	 */
 		
 		public static void simulReplicatesRQMCSaveU01 (MonteCarloModelDensityU01 model, RQMCPointSet prqmc, 
-		        int m, Tally statReps, Tally statKS, Tally statCVM, double[][] data) {
+		        int m, Tally statReps, TallyStore statKS, TallyStore statCVM, double[][] data) {
 			int n = prqmc.getNumPoints();
 			// Internal collector for stats on the n outputs X, for each replication.
 			
 			TallyStore statSave = new TallyStore(n);
 			TallyStore statSave01 = new TallyStore(n);
+			statKS = new TallyStore();  // For KS test
+			statCVM = new TallyStore();  // For Cramer von Mises
 			PointSetIterator stream = prqmc.iterator();
-			for (int rep = 0; rep < m; rep++) {
-				//PointSetRandomization rand = prqmc.getRandomization();
-				//prqmc.getPointSet().randomize(rand);
-				//rand.randomize(prqmc.getPointSet());
+			for (int rep = 0; rep < m; rep++) {			
 				
 				if(prqmc.getPointSet() instanceof DigitalNet)
 				prqmc.randomize();
@@ -114,31 +113,27 @@ public class RQMCExperiment extends MonteCarloExperiment {
 				simulateRuns(model, n, stream, statSave);
 				statSave.quickSort();
 				statReps.add(statSave.average());   // For the estimator of the mean.
-				//statSave.quickSort();
+				data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!
 				mapRunsTo01(model,statSave, statSave01);
 				double ks=computeKS(statSave01.getArray());
 				statKS.add(ks*ks);
 				statCVM.add(computeSquareL2StarDim1(statSave01.getArray()));
-				data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!
-				//KS[rep] = statKS.getArray();
-				//CVM[rep] = statCVM.getArray();
 				statSave = new TallyStore(n);
+			    statSave01 = new TallyStore(n);
+			    statKS = new TallyStore();
+				statCVM = new TallyStore();
 			}
 		}
+		
+		
 	public static void simulReplicatesRQMCSave (MonteCarloModelBounded model, RQMCPointSet prqmc, 
 	        int m, Tally statMean, double[][] data ) {
 		int n = prqmc.getNumPoints();
 		// Internal collector for stats on the n outputs X, for each replication.
 	
-		/*TallyStore statKS = new TallyStore(); // For KS test
-		TallyStore statCVM = new TallyStore(); // For Cramer von Mises
-*/		TallyStore statSave = new TallyStore(n);
-		TallyStore statSave01 = new TallyStore(n);
+     	TallyStore statSave = new TallyStore(n);
 		PointSetIterator stream = prqmc.iterator();
-		for (int rep = 0; rep < m; rep++) {
-			//PointSetRandomization rand = prqmc.getRandomization();
-			//prqmc.getPointSet().randomize(rand);
-			//rand.randomize(prqmc.getPointSet());
+		for (int rep = 0; rep < m; rep++) {			
 			
 			if(prqmc.getPointSet() instanceof DigitalNet)
 			prqmc.randomize();
@@ -150,16 +145,8 @@ public class RQMCExperiment extends MonteCarloExperiment {
 			simulateRuns(model, n, stream, statSave);
 			statSave.quickSort();
 			statMean.add(statSave.average());   // For the estimator of the mean.			
-			data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!
-			/*mapRunsTo01( model,statSave, statSave01);
-			double ks=computeKS(statSave01.getArray());
-			statKS.add(ks*ks);
-			statCVM.add(computeSquareL2StarDim1(statSave01.getArray()));*/
-			data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!
-			//KS[rep] = statKS.getArray();
-			//CVM[rep] = statCVM.getArray();
+			data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!			
 			statSave = new TallyStore(n);
-			statSave01 = new TallyStore(n);
 		}
 	}
 

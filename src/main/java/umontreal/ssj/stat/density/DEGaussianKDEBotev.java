@@ -54,40 +54,27 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	public double getA() {
 		return a;
 	}
-	public void setA(double a) {
-		this.a = a;
-	}
 	public double getB() {
 		return b;
 	}
-	public void setB(double b) {
-		this.b = b;
-	}
-	public double getBandwidthKDE() {
-		return h;
-	}
-	public void setBandwidthKDE(double bandwidthKDE) {
-		this.h = bandwidthKDE;
-	}
+	
+	
 	public int getM() {
 		return m;
 	}
 	public double geth(){
 		return h;
 	}
-	public void setM(int m) {
-		this.m = m;
-	}
-	public KernelDensityEstimator1d getKde() {
-		return kde;
-	}
-	public void setKde(KernelDensityEstimator1d kde) {
-		this.kde = kde;
-	}
+	
+	
 	
 
 	
-	// Estimate the density
+	/**	
+     * Constructs a density estimator from 
+     * the data points in vector x.
+     * @param x  data points.
+     */
 	
 	public void constructDensity(double[] x) {
 		
@@ -99,18 +86,19 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		 kde.kde(x,m,a,b);
 	}
 
+	/**
+	 * Returns the value of the density evaluated at x.
+	 */
 	public double evalDensity(double x, int n) {
-		return 0.0;
+		double[] densi = kde.getDensity();
+		double h = (b-a)/m;
+		return densi[(int) ((x -a) /h)];
 	}
-	// Evaluate  the density  at a point
-	
+	/**
+	 * Returns the value of the density evaluated at x.
+	 */
 	public double evalDensity(double x, double[] data) {
 		
-		/*double sum=0.0;
-		for(int i=0; i < data.length; i++){
-		sum += NormalDist.density(0, 1, (data[i]-x)/bandwidthKDE);
-		}
-		return sum/(bandwidthKDE*data.length);*/
 		
 		double[] densi = kde.getDensity();
 		double h = (b-a)/m;
@@ -119,20 +107,20 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	}
 
 	
-	
-	
-    /*public void evalDensity(double[] x, double[] f) {
-		
-		for(int i=0; i < x.length; i++)
-			f[i] = evalDensity(x[i],x.length);
-	}*/
-	
-	// Evaluate the density at eval points
-	
+	/**	
+    * Returns in array density the value of the density at the evaluation points in x.
+    * These two arrays must have the same size. 
+    * @param x  evaluation points
+    * @param density  values of the density
+    */
 	public void evalDensity(double[] x, double[] f,double[] data) {
 		
 		for(int i=0; i < x.length; i++)
 			f[i] = evalDensity(x[i], data);
+	}
+	
+	public String toString(){
+		return "Kernel Botev _"+ geth();
 	}
 		
 }

@@ -1,21 +1,17 @@
 package umontreal.ssj.stat.density;
-
-import umontreal.ssj.stat.AveragedShiftedHistogram;
 import umontreal.ssj.stat.ScaledHistogram;
 import umontreal.ssj.stat.TallyHistogram;
 
 /**
- *
-* An averaged shifted histogram used a a density estimator.
-* 
+* This class provides methods to compute an averaged shifted histogram with quadratic weight density estimator from a
+* set of @f$n@f$ individual observations @f$x_0, …, x_{n-1}@f$, and returns
+* its value at a  set of selected points. 
 */
 public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	double a,b;
 	int m, r;
 	ScaledHistogram histDensity;
 	ScaledHistogram histAsh;
-	//AveragedShiftedHistogram ASH;
-	//AveragedShiftedHistogram ASH2;
 	double[]  weight;
 	
 	
@@ -24,8 +20,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		this.b = b;
 		histDensity = null;
 		histAsh = null;
-		//ASH = null;
-		//ASH2 = null;
+		
 		
 	}
 	
@@ -33,14 +28,8 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	public double getA() {
 		return a;
 	}
-	public void setA(double a) {
-		this.a = a;
-	}
 	public double getB() {
 		return b;
-	}
-	public void setB(double b) {
-		this.b = b;
 	}
 	public int getM() {
 		return m;
@@ -51,27 +40,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	public double geth() {
 		return (b-a)/m;
 	}
-	public void setM(int m) {
-		this.m = m;
-	}
-	public int getR() {
-		return r;
-	}
-	public void setR(int r) {
-		this.r = r;
-	}
-	public ScaledHistogram getHistDensity() {
-		return histDensity;
-	}
-	public void setHistDensity(ScaledHistogram histDensity) {
-		this.histDensity = histDensity;
-	}
-	public ScaledHistogram getHistAsh() {
-		return histAsh;
-	}
-	public void setHistAsh(ScaledHistogram histAsh) {
-		this.histAsh = histAsh;
-	}
+	
 	public DEAveragedShiftedHistogramWeight (double a, double b, int m, int r) {
 		this.a = a;
 		this.b = b;
@@ -94,49 +63,48 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	}
 
 	
-	// Estimate the density 
+	 /**	
+     * Constructs a density estimator from 
+     * the data points in vector x.
+     * @param x  data points.
+     */
 	
 	public void constructDensity(double[] x) {
 		
 		TallyHistogram hist = new TallyHistogram(a,b,m);
 		hist.fillFromArray(x);
-		
 		histDensity=new ScaledHistogram(hist,1.0);
 		histAsh=histDensity.averageShiftedHistogramTrunc(r, weight);
 		histAsh.rescale(1.0);
-		
-		
-		/*TallyHistogram hist = new TallyHistogram(a,b,m*r);
-	    hist.fillFromArray(x);
-		ASH = new AveragedShiftedHistogram(hist,1.0);
-		ASH2 = ASH.averageShiftedHistogramTrunc(r, weight);
-		ASH2.rescale(1.0);*/
 	}
 
-	// Evaluate  the density  at a point
+	/**
+	 * Returns the value of the density evaluated at x.
+	 */
 	
 	public double evalDensity(double x, int n) {
 		double h = (b - a)/ r*m;	
-		//double evaldens = ASH2.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
-		//double evaldens = histAsh.getHeight(x);
 		double evaldens = histAsh.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
 		return evaldens;
 	}
 	
   
-	
-	/*public void evalDensity(double[] x, double[] f) {
-		
-		for(int i=0; i < x.length; i++)
-			f[i] = evalDensity(x[i], x.length);
-	}*/
-	
-	  // Evaluate the density at eval points
+	/**	
+     * Returns in array density the value of the density at the evaluation points in x.
+     * These two arrays must have the same size. 
+     * @param x  evaluation points
+     * @param density  values of the density
+     * @param data array of observations
+     */
 	
     public void evalDensity(double[] x, double[] f, double[] data) {
     	
     	for(int i=0; i < x.length; i++)
 			f[i] = evalDensity(x[i], data.length);
+	}
+    
+    public String toString(){
+		return "ASH quadratic_"+ getM();
 	}
 	
 }

@@ -12,6 +12,7 @@ import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 import umontreal.ssj.stat.*;
 import umontreal.ssj.stat.density.DEHistogram;
+import umontreal.ssj.stat.density.DEKernelDensity;
 import umontreal.ssj.stat.density.DensityEstimator;
 // import umontreal.ssj.stat.list.ListOfTallies;
 import umontreal.ssj.util.Chrono;
@@ -54,19 +55,7 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
 			de.constructDensity(data[rep]);	
-			double min = data[rep][0];
-			double max = data[rep][0];
-			for (double d : data[rep]) {
-				if (d<min) {
-					min = d;
-				}
-				if (d>max) {
-					max = d;
-				}
-			}
-		
-			/*for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = de.getA() + (i+1-0.5) * (de.getB()-de.getA())/de.getM();*/
+			
 			
 			
 		
@@ -77,20 +66,24 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 					evalPoints[i] = evalPoints[i-1]+dx;
 					
 				}*/
+			
+			/*if ( de == new DEKernelDensity(de.getA(),de.getB(), de.geth()) ){
+			
+			for (int i=0; i<numEvalPoints; i++)
+				evalPoints[i] = data[rep][i];}
+		
+		else{
+
+		for (int i=0; i < numEvalPoints; i++)
+			//evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
+			evalPoints[i] = de.getA() + (i+0.5) * de.geth();}*/
 						
 			
-			/*for (int i=0; i<numEvalPoints; i++)
-			evalPoints[i] = data[rep][i];*/
-			
-
-			for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
+			for (int i=0; i<numEvalPoints; i++)
+			evalPoints[i] = data[rep][i];
 			
 			de.evalDensity(evalPoints, estimDens, data[rep]);
-			
-			/*for (int i=0; i<numEvalPoints; i++)
-			
-			System.out.println("estimDens"+ estimDens[i]);*/
+
 			
 	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
 			for (int j = 0; j < numEvalPoints; j++) { 
@@ -123,7 +116,6 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		// If the density estimator is a histogram, here we may reset numEvalPoints to 
 		// the number of bins of the histogram.
 		if ( de == new DEHistogram(de.getA(),de.getB()) )
-			//numEvalPoints = de.getM();
 			numEvalPoints = (int) ((de.getB()-de.getA())/de.geth());
 		
 		//System.out.println("NumEvalPoints"+ numEvalPoints);
@@ -137,31 +129,21 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
 			de.constructDensity(data[rep]);	
-			double min = data[rep][0];
-			double max = data[rep][0];
-			for (double d : data[rep]) {
-				if (d<min) {
-					min = d;
-				}
-				if (d>max) {
-					max = d;
-				}
-			}
-			/*for (int i=0; i<numEvalPoints; i++)
-				evalPoints[i] = data[rep][i];*/
 			
+			for (int i=0; i<numEvalPoints; i++)
+				evalPoints[i] = data[rep][i];
+			
+/*if ( de == new DEKernelDensity(de.getA(),de.getB(), de.geth()) ){
+				
+				for (int i=0; i<numEvalPoints; i++)
+					evalPoints[i] = data[rep][i];}
+			
+			else{
+
 			for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
+				//evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
+				evalPoints[i] = de.getA() + (i+0.5) * de.geth();}*/
 			
-			
-		
-			//double dx=(model.getMax()-model.getMin())/numEvalPoints;
-			/*double dx=(max-min)/numEvalPoints;
-			evalPoints[0] = min+dx*0.5;
-			for (int i=1; i<numEvalPoints; i++){
-					evalPoints[i] = evalPoints[i-1]+dx;
-					
-				}*/
 						
 		
 			/*double dx=(model.getMax()-model.getMin())/numEvalPoints;
@@ -170,18 +152,8 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 					evalPoints[i] = evalPoints[i-1]+dx;*/
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			
-			
-			
-			/*for (int i=0; i<numEvalPoints; i++)
-			
-			System.out.println("estimDens"+ estimDens[i]);*/
-			
 	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
 			for (int j = 0; j < numEvalPoints; j++) { 
-				x = estimDens[j];				
-				y = x - meanDens[j];
-				meanDens[j] += y / (double) (rep+1);				
-				varDens[j] += y * (x - meanDens[j]);	
 				y = estimDens[j] - model.density(evalPoints[j]);   // model.density(x);
 				miseDens[j] += y * y;
 			}

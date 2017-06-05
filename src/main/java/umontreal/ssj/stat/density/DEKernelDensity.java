@@ -31,12 +31,7 @@ import umontreal.ssj.stat.KernelDensityEstimator1d;
 /**
  * This class provides methods to compute a kernel density estimator from a
  * set of @f$n@f$ individual observations @f$x_0, …, x_{n-1}@f$, and returns
- * its value at @f$m@f$ selected points. For details on how the kernel
- * density is defined, and how to select the kernel and the bandwidth
- * @f$h@f$, see the documentation of class
- * @ref umontreal.ssj.randvar.KernelDensityGen in package `randvar`.
- *
- * <div class="SSJ-bigskip"></div>
+ * its value at a  set of selected points. 
  */
 public class DEKernelDensity implements DensityEstimator {
 	double a, b, h; 
@@ -44,12 +39,19 @@ public class DEKernelDensity implements DensityEstimator {
 	EmpiricalDist dist;
 	ContinuousDistribution kern ;
 	
+public DEKernelDensity(double a, double b, double h ) {
+		
+		this.a = a;
+		this.b = b;
+		this.h = h;
+		
+	}
+	
 	public DEKernelDensity(double a, double b, double h, ContinuousDistribution kern  ) {
 		
 		this.a = a;
 		this.b = b;
 		this.h = h;
-		//this.dist = dist;
 		this.kern = kern;
 	}
 	
@@ -59,6 +61,12 @@ public class DEKernelDensity implements DensityEstimator {
 		this.b = b;
 	}
 	
+    
+    /**	
+     * Constructs a density estimator from 
+     * the data points in vector x.
+     * @param x  data points.
+     */
 	public void constructDensity(double[] x) {
 		
 		kerD = new KernelDensity();
@@ -67,79 +75,55 @@ public class DEKernelDensity implements DensityEstimator {
 		
 	}
 
+	/**
+	 * Returns the value of the density evaluated at x.
+	 */
 	public double evalDensity(double x, int n) {
 		return kerD.estimate(dist, kern, h, x);
 		
 	}
 
+	/**	
+     * Returns in array density the value of the density at the evaluation points in x.
+     * These two arrays must have the same size. 
+     * @param x  evaluation points
+     * @param density  values of the density
+     * @param data array of observations
+     */
 	public void evalDensity(double[] x, double[] f, double[] data ) {
 		
 		for(int i=0; i < x.length; i++)
 			f[i] = evalDensity(x[i], data.length);
 		
-		//f = kerD.computeDensity(dist, kern, h, x);
-		
+	}
+	
+	public String toString(){
+		return "KDE Gaussian_"+ geth();
 	}
 	
 
-   /**
-    * Given the empirical distribution `dist`, this method computes the
-    * kernel density estimate at each of the @f$m@f$ points
-    * <tt>Y[</tt>@f$j@f$<tt>]</tt>, @f$j= 0, 1, …, (m-1)@f$, where @f$m@f$
-    * is the length of `Y`, the kernel is `kern.density(x)`, and the
-    * bandwidth is @f$h@f$. Returns the estimates as an array of @f$m@f$
-    * values.
-    */
-  /* public static double[] computeDensity (double[] data,
-                                          ContinuousDistribution kern,
-                                          double h, double[] Y) {
-      int m = Y.length;
-      double[] u = new double[m];
-      for (int j = 0; j < m; j++)
-         u[j] = estimate (dist, kern, h, Y[j]);
-      return u;
-   }*/
-
-   /**
-    * Similar to method
-    * #computeDensity(EmpiricalDist,ContinuousDistribution,double,double[])
-    * above
-    * , but the bandwidth @f$h@f$ is obtained from the method
-    * {@link umontreal.ssj.randvar.KernelDensityGen.getBaseBandwidth(EmpiricalDist)
-    * getBaseBandwidth(dist)} in package `randvar`.
-    */
-   /*public static double[] computeDensity (EmpiricalDist dist,
-                                          ContinuousDistribution kern,
-                                          double[] Y) {
-      double h = KernelDensityGen.getBaseBandwidth(dist);
-      return computeDensity (dist, kern, h, Y);
-   }*/
+   
 
 	
 	public void seth (double h){
 		this.h=h;
 	}
 	
-	public void setA (double a){
-		this.a=a;
-	}
-	public void setB (double b){
-		this.b=b;
-	}
+	
 public double geth() {
-	// TODO Auto-generated method stub
+	
 	return h;
 }
 
 
 
 public double getA() {
-	// TODO Auto-generated method stub
+	
 	return a;
 }
 
 public double getB() {
-	// TODO Auto-generated method stub
+	
 	return b;
 }
 

@@ -3,17 +3,18 @@ import umontreal.ssj.stat.ScaledHistogram;
 import umontreal.ssj.stat.TallyHistogram;
 
 /**
- * 
- * @author Lecuyer
- *
- * A histogram used a a density estimator.
- * 
- */
+* This class provides methods to compute a histogram density estimator from a
+* set of @f$n@f$ individual observations @f$x_0, …, x_{n-1}@f$, and returns
+* its value at a  set of selected points. 
+*/
+
+
 public class DEHistogram implements DensityEstimator {
 	double a,b, h;
 	int m;
 	ScaledHistogram histDensity;
 
+	
 	public DEHistogram (double a, double b, double h) {
 		this.a = a;
 		this.b = b;
@@ -41,12 +42,9 @@ public class DEHistogram implements DensityEstimator {
 		
 		this.a = a;
 		this.b = b;
-		histDensity = null;
 	}
 	
-	public double getA() {
-		return a;
-	}
+	
 	
 	
 	
@@ -55,32 +53,30 @@ public class DEHistogram implements DensityEstimator {
 		this.h = h;
 	}
 	
-	public void setA(double a) {
-		this.a = a;
+	public double getA() {
+		return a;
 	}
+	
 	public double getB() {
 		return b;
 	}
-	public void setB(double b) {
-		this.b = b;
-	}
+	
 	public int getM() {
 		return m;
 	}
-	public void setM(int m) {
-		this.m = m;
-	}
+	
 	public double geth() {
 		return (b-a)/m;
 	}
-	public ScaledHistogram getHistDensity() {
-		return histDensity;
-	}
-	public void setHistDensity(ScaledHistogram histDensity) {
-		this.histDensity = histDensity;
-	}
+	
+	
+	
 
-	// Estimate the density
+	 /**	
+     * Constructs a density estimator from 
+     * the data points in vector x.
+     * @param x  data points.
+     */
 	
 	public void constructDensity(double[] x) {
 		
@@ -90,7 +86,9 @@ public class DEHistogram implements DensityEstimator {
 		
 	}
 
-	// Evaluate  the density  at a point
+	/**
+	 * Returns the value of the density evaluated at x.
+	 */
 	
 	public double evalDensity(double x, int n ) {
 		double h=(b-a)/m;
@@ -98,18 +96,23 @@ public class DEHistogram implements DensityEstimator {
 		return histDensity.getHeight(x)/(n*h);
 	}
 
-	// Evaluate the density at eval points
+	 /**	
+     * Returns in array density the value of the density at the evaluation points in x.
+     * These two arrays must have the same size. 
+     * @param x  evaluation points
+     * @param density  values of the density
+     * @param data array of observations
+     */
 	public void evalDensity(double[] x, double[] f, double[] data) {
 		
 		for(int i=0; i < x.length; i++)
 		f[i] = evalDensity(x[i],data.length);
 	}
 	
-	/*public void evalDensity(double[] x, double[] f) {
-		
-		for(int i=0; i < x.length; i++)
-			f[i] = evalDensity(x[i],x.length);
-	}*/
+	
+	public String toString(){
+		return "Histogram with Numbins"+ getM();
+	}
 	
 	
 }

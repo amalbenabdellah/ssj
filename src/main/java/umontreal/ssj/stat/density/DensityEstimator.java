@@ -39,15 +39,17 @@ public interface DensityEstimator {
      * @param x  evaluation points
      * @param density  values of the density
      */
-	//public void evalDensity (double[] x, double[] density);
+	
 	public void evalDensity (double[] x, double[] density, double[] data);
+	/**	
+	 *  if the density is kernel h is the bandwidth else if the density is a histogram  h represents (rang/numbins)
+	 */
+	
 	public double geth();
 	public void seth (double h);
-	//public int getM();
 	public double getA();
-	public void setA (double A);
 	public double getB();
-	public void setB (double B);
+
 		
 	}
 		
