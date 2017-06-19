@@ -54,6 +54,11 @@ public DEKernelDensity(double a, double b, double h ) {
 		this.h = h;
 		this.kern = kern;
 	}
+public DEKernelDensity(double a, double b ) {
+		
+		this.a = a;
+		this.b = b;
+	}
 	
     public void setRange(double a, double b) {
 		

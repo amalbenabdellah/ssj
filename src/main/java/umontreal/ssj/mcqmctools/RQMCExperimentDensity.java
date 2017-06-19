@@ -11,6 +11,8 @@ import umontreal.ssj.hups.*;
 import umontreal.ssj.rng.MRG32k3a;
 import umontreal.ssj.rng.RandomStream;
 import umontreal.ssj.stat.*;
+import umontreal.ssj.stat.density.DEAveragedShiftedHistogram;
+import umontreal.ssj.stat.density.DEAveragedShiftedHistogramWeight;
 import umontreal.ssj.stat.density.DEHistogram;
 import umontreal.ssj.stat.density.DEKernelDensity;
 import umontreal.ssj.stat.density.DensityEstimator;
@@ -42,45 +44,25 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			double[][] data, DensityEstimator de, int numEvalPoints) {
 
 		double x, y;
-		// If the density estimator is a histogram, here we may reset numEvalPoints to 
-		// the number of bins of the histogram.
-		if ( de == new DEHistogram(de.getA(),de.getB()) )
-			numEvalPoints = (int) (de.geth()/(de.getB()-de.getA()));
 		
 		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
 		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
 		double meanDens[] = new double[numEvalPoints];    // Average value over rep replicates
 		double varDens[] = new double[numEvalPoints];     // Variance at each evaluation point
+	
+		/*Arrays.fill(varDens,0.0);
+		Arrays.fill(meanDens,0.0);*/
+		for (int i=0; i < numEvalPoints; i++){
+			varDens[i] = 0.0;
+			meanDens[i] = 0.0;
+			
+		}
 		
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
-			de.constructDensity(data[rep]);	
-			
-			
-			
-		
-			//double dx=(model.getMax()-model.getMin())/numEvalPoints;
-			/*double dx=(max-min)/numEvalPoints;
-			evalPoints[0] = min+dx*0.5;
-			for (int i=1; i<numEvalPoints; i++){
-					evalPoints[i] = evalPoints[i-1]+dx;
-					
-				}*/
-			
-			/*if ( de == new DEKernelDensity(de.getA(),de.getB(), de.geth()) ){
-			
-			for (int i=0; i<numEvalPoints; i++)
-				evalPoints[i] = data[rep][i];}
-		
-		else{
-
-		for (int i=0; i < numEvalPoints; i++)
-			//evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
-			evalPoints[i] = de.getA() + (i+0.5) * de.geth();}*/
-						
-			
-			for (int i=0; i<numEvalPoints; i++)
-			evalPoints[i] = data[rep][i];
+			de.constructDensity(data[rep]);				
+			for (int i=0; i < numEvalPoints; i++)
+				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;
 			
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 
@@ -89,7 +71,7 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			for (int j = 0; j < numEvalPoints; j++) { 
 				x = estimDens[j];				
 				y = x - meanDens[j];
-				meanDens[j] += y / (double) (rep+1);				
+				meanDens[j] += y / (double) (rep+1);		
 				varDens[j] += y * (x - meanDens[j]);
 				
 			}
@@ -102,6 +84,47 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		return sumVar * (b - a) / (numEvalPoints * (m - 1));   // Empirical integrated variance.
 	}
 	
+	/*public static double computeDensityBiass (MonteCarloModelDensityKnown model, int m,
+			double[][] data, DensityEstimator de, int numEvalPoints) {
+		double x,y;
+		double meanDens[] = new double[numEvalPoints];
+		double biasDens[] = new double[numEvalPoints];
+		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
+		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
+		
+		Arrays.fill(meanDens,0.0);
+		//Arrays.fill(biasDens,0.0);
+
+		for (int rep = 0; rep < m; rep++) {
+			// Estimate the density and evaluate it at eval points
+			de.constructDensity(data[rep]);	
+			for (int i=0; i < numEvalPoints; i++)
+				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;
+			de.evalDensity(evalPoints, estimDens, data[rep]);
+
+			
+	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
+			for (int j = 0; j < numEvalPoints; j++) { 
+				x = estimDens[j];				
+				y = x - meanDens[j];
+				meanDens[j] += y / (double) (rep+1);		
+				biasDens[j] = Math.pow(meanDens[j] - model.density(evalPoints[j]),2);
+				
+			}
+			
+			}
+		double a = model.getMin();
+		double b = model.getMax();
+		double sumBias = 0.0;
+		for (int i = 0; i < numEvalPoints; ++i)
+			sumBias += biasDens[i];		
+		return sumBias  * (b - a) / (numEvalPoints * (m - 1));   
+		
+		}*/
+	
+	
+	
+	
 	/**
 	 * Takes data from previous simulation (m replicates, n points each)
 	 * and a density estimator de.
@@ -109,47 +132,27 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 	 * for this density estimator.
 	 */
 	
-	public static double computeDensityMISE (MonteCarloModelDensityKnown model, int m,
+	public static double computeDensityMISE(MonteCarloModelDensityKnown model, int m,
 			double[][] data, DensityEstimator de, int numEvalPoints) {
 
 		double x, y;
-		// If the density estimator is a histogram, here we may reset numEvalPoints to 
-		// the number of bins of the histogram.
-		if ( de == new DEHistogram(de.getA(),de.getB()) )
-			numEvalPoints = (int) ((de.getB()-de.getA())/de.geth());
-		
-		//System.out.println("NumEvalPoints"+ numEvalPoints);
 		
 		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
 		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
-		double meanDens[] = new double[numEvalPoints];    // Average value over rep replicates
-		double varDens[] = new double[numEvalPoints];     // Variance at each evaluation point
 		double miseDens[] = new double[numEvalPoints];
+		//Arrays.fill(miseDens,0.0);
+		for (int i=0; i < numEvalPoints; i++){
+			miseDens[i] = 0.0;
+			
+		}
 		
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
 			de.constructDensity(data[rep]);	
 			
-			for (int i=0; i<numEvalPoints; i++)
-				evalPoints[i] = data[rep][i];
-			
-/*if ( de == new DEKernelDensity(de.getA(),de.getB(), de.geth()) ){
-				
-				for (int i=0; i<numEvalPoints; i++)
-					evalPoints[i] = data[rep][i];}
-			
-			else{
-
 			for (int i=0; i < numEvalPoints; i++)
-				//evalPoints[i] = de.getA() + (i+0.5) * (de.getB()-de.getA())*de.geth();
-				evalPoints[i] = de.getA() + (i+0.5) * de.geth();}*/
+				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;
 			
-						
-		
-			/*double dx=(model.getMax()-model.getMin())/numEvalPoints;
-			evalPoints[0] = model.getMin()+dx*0.5;
-			for (int i=1; i<numEvalPoints; i++)
-					evalPoints[i] = evalPoints[i-1]+dx;*/
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			
 	        // Update the empirical mean and sum of squares of centered observations at each evaluation point.
@@ -178,6 +181,26 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 						data, de,  numEvalPoints);
 		}
 	
+
+	/*double dx=(model.getMax()-model.getMin())/numEvalPoints;
+	evalPoints[0] = min+dx*0.5;
+	for (int i=1; i<numEvalPoints; i++){
+			evalPoints[i] = evalPoints[i-1]+dx;
+			
+		}*/
 	
+	
+
+/*for (int i=0; i < numEvalPoints; i++)
+	evalPoints[i] = de.getA() + (i+0.5) *de.geth();
+	*/
+	/*public static double computeDensityMISEE (MonteCarloModelDensityKnown model, int m,
+			double[][] data, DensityEstimator de, int numEvalPoints) {
+		
+		return   computeDensityVariance (model, m,
+				data, de,  numEvalPoints)+ computeDensityBias (model, m,
+						data, de,  numEvalPoints);
+		}*/
+		
 		
 }

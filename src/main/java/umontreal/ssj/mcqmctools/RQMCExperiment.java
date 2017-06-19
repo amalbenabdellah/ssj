@@ -53,8 +53,7 @@ public class RQMCExperiment extends MonteCarloExperiment {
 		}
 	}
 	
-	// Performs n runs using stream and collects statistics in statValue.
-		// Note that the stream can be an RQMC stream.
+	
 		public static void mapRunsTo01 (MonteCarloModelDensityU01 model, 
 				TallyStore statValue, TallyStore statValue01) {
 			statValue01.init();
@@ -98,22 +97,23 @@ public class RQMCExperiment extends MonteCarloExperiment {
 			
 			TallyStore statSave = new TallyStore(n);
 			TallyStore statSave01 = new TallyStore(n);
-			statKS = new TallyStore();  // For KS test
-			statCVM = new TallyStore();  // For Cramer von Mises
 			PointSetIterator stream = prqmc.iterator();
 			for (int rep = 0; rep < m; rep++) {			
 				
-				if(prqmc.getPointSet() instanceof DigitalNet)
+				/*if(prqmc.getPointSet() instanceof DigitalNet || prqmc.getPointSet() instanceof CachedPointSet)
 				prqmc.randomize();
 				else{
 				  PointSetRandomization rand = prqmc.getRandomization();
 				  prqmc.getPointSet().randomize(rand);
-				}
+				}*/
+				prqmc.randomize();
+				
 				stream.resetStartStream();			
 				simulateRuns(model, n, stream, statSave);
 				statSave.quickSort();
 				statReps.add(statSave.average());   // For the estimator of the mean.
 				data[rep] = statSave.getArray();   // Instead of copy, just exchange pointers!
+				
 				mapRunsTo01(model,statSave, statSave01);
 				double ks=computeKS(statSave01.getArray());
 				statKS.add(ks*ks);
@@ -125,6 +125,9 @@ public class RQMCExperiment extends MonteCarloExperiment {
 			}
 		}
 		
+		/** Performs n runs using stream and collects statistics in statValue.
+			Note that the stream can be an RQMC stream.
+			*/
 		
 	public static void simulReplicatesRQMCSave (MonteCarloModelBounded model, RQMCPointSet prqmc, 
 	        int m, Tally statMean, double[][] data ) {
@@ -135,12 +138,14 @@ public class RQMCExperiment extends MonteCarloExperiment {
 		PointSetIterator stream = prqmc.iterator();
 		for (int rep = 0; rep < m; rep++) {			
 			
-			if(prqmc.getPointSet() instanceof DigitalNet)
+			/*if(prqmc.getPointSet() instanceof DigitalNet || prqmc.getPointSet() instanceof CachedPointSet)
 			prqmc.randomize();
 			else{
 			  PointSetRandomization rand = prqmc.getRandomization();
 			  prqmc.getPointSet().randomize(rand);
 			}
+			*/
+			prqmc.randomize();
 			stream.resetStartStream();			
 			simulateRuns(model, n, stream, statSave);
 			statSave.quickSort();

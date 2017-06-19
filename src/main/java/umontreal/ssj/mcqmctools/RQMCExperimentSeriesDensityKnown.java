@@ -30,6 +30,7 @@ import umontreal.ssj.functionfit.LeastSquares;
 import umontreal.ssj.hups.*;
 import umontreal.ssj.stat.Tally;
 import umontreal.ssj.stat.density.DEAveragedShiftedHistogram;
+import umontreal.ssj.stat.density.DEAveragedShiftedHistogramWeight;
 import umontreal.ssj.stat.density.DEHistogram;
 import umontreal.ssj.stat.density.DEKernelDensity;
 import umontreal.ssj.stat.density.DensityEstimator;
@@ -99,7 +100,7 @@ public double[][] log2MISES;
 	this.model = model;
    if (displayExec) {
    	System.out.println("\n ============================================= ");
-   	System.out.println("RQMC simulation for density estimation, for known density:  ");
+   	System.out.println("RQMC simulation for density estimation, for known density with fixed h:  ");
    	System.out.println("Model: " + model.toString());
    	System.out.println(" Number of indep copies m  = " + m);
    	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
@@ -120,7 +121,7 @@ public double[][] log2MISES;
 	    log2IV[s] = Num.log2(integVariance[s]);
 	    if (displayExec) {
 	    	System.out.println( " " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +
-	  	          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+	  	          " " + PrintfFormat.f(10, 5, log2MISE[s]) + "\n");
 	    }
 	}	
 	 
@@ -142,13 +143,14 @@ public double[][] log2MISES;
 	this.model = model;
   if (displayExec) {
   	System.out.println("\n ============================================= ");
-  	System.out.println("RQMC simulation for density estimation, for known density:  ");
+  	System.out.println("RQMC simulation for density estimation, for known density with varied h and n:  ");
   	System.out.println("Model: " + model.toString());
   	System.out.println(" Number of indep copies m  = " + m);
   	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
     System.out.println("    n    log2Var  log2(IV) log2(ISB)  log2(MISE)   \n");      	
   }
 
+  double t=0.1;
   double  l=1;
 
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
@@ -162,16 +164,28 @@ public double[][] log2MISES;
 		    DE.seth((DE.getB()-DE.getA())/Math.pow(4, l));
 		    l++;
 			}
-		else if ( DE == new DEAveragedShiftedHistogram(DE.getA(),DE.getB()) ){
+		else if ( DE == new DEAveragedShiftedHistogram(DE.getA(),DE.getB()) || DE == new DEAveragedShiftedHistogramWeight(DE.getA(),DE.getB())){
 			log2h[s] = Math.log((DE.getB()-DE.getA())/(32*Math.pow(4, l)));
 		    DE.seth((DE.getB()-DE.getA())/(32*Math.pow(4, l)));	
 		    l++;
 			
 		}
+		
+		if ( DE == new DEHistogram(DE.getA(),DE.getB()) ||DE == new DEAveragedShiftedHistogram(DE.getA(),DE.getB()) || DE == new DEAveragedShiftedHistogramWeight(DE.getA(),DE.getB()) ){
+		    log2h[s] = Math.log((DE.getB()-DE.getA())/Math.pow(4, l));
+		    DE.seth((DE.getB()-DE.getA())/Math.pow(4, l));
+		    l++;
+			}
 		else {			
 			log2h[s] =- Math.log(Math.pow(4, l));
+			DE.seth(1/Math.pow(4, l));
 			l=l+0.2;
-		}		
+		}	
+		/*log2h[s] = Math.log(t);
+		DE.seth(t);
+		t++;*/
+		
+		
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
 		MISE[s]=RQMCExperimentDensity.computeDensityMISE (model, m, data, DE, numEvalPoints);
 		bias[s]=RQMCExperimentDensity.computeDensityBias (model,  m, data, DE, numEvalPoints);
@@ -181,7 +195,7 @@ public double[][] log2MISES;
 	    log2ISB[s]= Num.log2(bias[s]);
 	    if (displayExec) {
 	    	System.out.println( " " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +" " + PrintfFormat.f(10, 5, log2ISB[s])+
-		  	          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+		  	          " " + PrintfFormat.f(10, 5, log2MISE[s]) + "\n");
 	    }
 	}	
 	 
@@ -196,13 +210,14 @@ public double[][] log2MISES;
    public void testMISERateOptimal (MonteCarloModelDensityKnown model, int m,
 			DensityEstimator DE, int numEvalPoints,  double[] MISE, double[] integVariance, double[] bias, RQMCPointSet [] theSets) {
 	int n;
+	int r = 4;
 	Tally statReps = new Tally();
 	Chrono timer = new Chrono();
 	numReplicates = m;
 	this.model = model;
   if (displayExec) {
   	System.out.println("\n ============================================= ");
-  	System.out.println("RQMC simulation for density estimation, for known density:  ");
+  	System.out.println("RQMC simulation for density estimation, for known density with optimal h:  ");
   	System.out.println("Model: " + model.toString());
   	System.out.println(" Number of indep copies m  = " + m);
   	System.out.println(" Point sets: " + theSets[0].toString() + "\n");
@@ -210,7 +225,7 @@ public double[][] log2MISES;
   }
   
   testMISERateVariedhn(model, m, DE, numEvalPoints,MISE,integVariance,bias, theSets); 
-  double[] regCoefbias= slope (log2n, log2ISB,numSkipRegression);
+  double[] regCoefbias= slope (log2h, log2ISB,numSkipRegression);
 	double alpha=regCoefbias[1];
 	System.out.println("alpha"+regCoefbias[1] );
   
@@ -244,20 +259,19 @@ public double[][] log2MISES;
 		size[s] = n;
 		double[][] data = new double[m][];		
 		log2n[s] = Num.log2(n);
-		DE.seth(kappa*Math.pow(n, -gamma));
-		//DE.seth(1/Math.pow(8, r)*Math.pow(n, -gamma));		
+		//DE.seth(kappa*Math.pow(n, -gamma));
+		DE.seth(1/Math.pow(8, r)*Math.pow(n, -gamma));		
 		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);	
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
 		MISE[s]=RQMCExperimentDensity.computeDensityMISE (model, m, data, DE, numEvalPoints);
 		bias[s]=RQMCExperimentDensity.computeDensityBias (model,  m, data, DE, numEvalPoints);
 		log2Var[s] = Num.log2(statReps.variance());
-		System.out.println("MI"+MISE[s] );	
 	    log2MISE[s] = Num.log2(MISE[s]);
 	    log2IV[s] = Num.log2(integVariance[s]);
 	    log2ISB[s]= Num.log2(bias[s]);
 	    if (displayExec) {
 	    	System.out.println( " " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) +" " + PrintfFormat.f(10, 5, log2IV[s]) +" " + PrintfFormat.f(10, 5, log2ISB[s]) +
-		  	          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+		  	          " " + PrintfFormat.f(10, 5, log2MISE[s]) + "\n");
 	}	}
 	 
   cpuTime = timer.format();	   
@@ -341,7 +355,7 @@ public double[][] log2MISES;
 			sb.append("    n    log2Var  log2(IV)   log2(MISE) \n");
 			for (int s = 0; s < numSets; s++) { // For each cardinality n
 				sb.append(" " + size[s] + " " + PrintfFormat.f(10, 5, log2Var[s]) + " " + PrintfFormat.f(10, 5, log2IV[s]) +				      
-				          " " + PrintfFormat.f(7, 2, log2MISE[s]) + "\n");
+				          " " + PrintfFormat.f(10, 5, log2MISE[s]) + "\n");
 			}
 		}
 		double[] regCoeff = slope (log2n, log2MISE, numSkipRegression);
