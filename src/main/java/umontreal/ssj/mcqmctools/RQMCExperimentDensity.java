@@ -149,9 +149,13 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
 			de.constructDensity(data[rep]);	
+			/*if(de==new DEKernelDensity(de.getA(),de.getB())){
 			
 			for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;
+				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;}
+			else{*/
+				for (int i=0; i < numEvalPoints; i++)
+					evalPoints[i] = de.getA() + (i+0.5) *(de.getB()-de.getA() )/numEvalPoints;
 			
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 			

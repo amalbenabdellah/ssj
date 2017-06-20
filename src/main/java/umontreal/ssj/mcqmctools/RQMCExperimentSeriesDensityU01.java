@@ -156,7 +156,7 @@ public double[] log2CVM ;
   	 System.out.println("    n    log2Var log2KS log2CVM  log2(IV) log2(ISB)  log2(MISE)   \n");   	    	
   }
 
-  double  l=1, t=0.05;
+  double  l=0.01, t=0.05;
 
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
@@ -203,6 +203,14 @@ public double[] log2CVM ;
 			t+=0.05;	
 			
 		}*/
+		/*if (DE == new DEKernelDensity(DE.getA(),DE.getB())){
+		log2h[s] = Math.log(t);
+		DE.seth(t);
+		t+=0.05;}
+		else{
+		log2h[s] = Math.log(l);
+		DE.seth(l);
+		l+=0.02;}*/
 		
 		log2h[s] = Math.log(t);
 		DE.seth(t);

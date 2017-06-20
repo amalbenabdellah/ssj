@@ -8,7 +8,7 @@ import umontreal.ssj.stat.TallyHistogram;
 * its value at a  set of selected points. 
 */
 public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
-	double a,b;
+	double a,b, h;
 	int m, r;
 	ScaledHistogram histDensity;
 	ScaledHistogram histAsh;
@@ -23,7 +23,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		
 		
 	}
-	public DEAveragedShiftedHistogramWeight (double a, double b, int r) {
+	/*public DEAveragedShiftedHistogramWeight (double a, double b, int r) {
 		this.a = a;
 		this.b = b;
 		this.r = r;
@@ -31,7 +31,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		histAsh = null;
 		
 		
-	}
+	}*/
 	
 	
 	public double getA() {
@@ -43,11 +43,14 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	public int getM() {
 		return m;
 	}
-	public void seth(double h) {
+	/*public void seth(double h) {
 		this.m = (int) ((b-a)/h);
+	}*/
+	public void seth(double h) {
+		this.h = h;
 	}
 	public double geth() {
-		return (b-a)/m;
+		return h;
 	}
 	
 	public DEAveragedShiftedHistogramWeight (double a, double b, int m, int r) {
@@ -55,6 +58,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		this.b = b;
 		this.m = m;
 		this.r = r;
+		this.h= b-a/m;
 		histDensity = null;
 		histAsh = null;
 

@@ -15,13 +15,7 @@ public class DEHistogram implements DensityEstimator {
 	ScaledHistogram histDensity;
 
 	
-	public DEHistogram (double a, double b, double h) {
-		this.a = a;
-		this.b = b;
-		this.h = h;
-		histDensity = null;
-		
-	}
+	
 	
 	public DEHistogram (double a, double b) {
 		this.a = a;
@@ -34,6 +28,7 @@ public class DEHistogram implements DensityEstimator {
     	this.a = a;
 		this.b = b;
 		this.m = m;
+		this.h= b-a/m;
 		histDensity = null;
 	}
 
@@ -50,6 +45,7 @@ public class DEHistogram implements DensityEstimator {
 	
 	
 	public void seth(double h) {
+		this.m = (int) ((b-a)/h);
 		this.h = h;
 	}
 	
@@ -66,7 +62,7 @@ public class DEHistogram implements DensityEstimator {
 	}
 	
 	public double geth() {
-		return (b-a)/m;
+		return h;
 	}
 	
 	
