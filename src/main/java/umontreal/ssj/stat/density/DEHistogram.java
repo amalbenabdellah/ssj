@@ -13,6 +13,7 @@ public class DEHistogram implements DensityEstimator {
 	double a,b, h;
 	int m;
 	ScaledHistogram histDensity;
+	TallyHistogram hist;
 
 	
 	
@@ -20,8 +21,7 @@ public class DEHistogram implements DensityEstimator {
 	public DEHistogram (double a, double b) {
 		this.a = a;
 		this.b = b;
-
-		histDensity = null;
+       
 		
 	}
     public DEHistogram (double a, double b,int  m) {
@@ -29,7 +29,7 @@ public class DEHistogram implements DensityEstimator {
 		this.b = b;
 		this.m = m;
 		this.h= b-a/m;
-		histDensity = null;
+		hist = new TallyHistogram(a,b,m);
 	}
 
 	
@@ -64,6 +64,10 @@ public class DEHistogram implements DensityEstimator {
 	public double geth() {
 		return h;
 	}
+	public void setM(int m) {
+		this.m = m;
+		
+	}
 	
 	
 	
@@ -76,7 +80,7 @@ public class DEHistogram implements DensityEstimator {
 	
 	public void constructDensity(double[] x) {
 		
-		TallyHistogram hist = new TallyHistogram(a,b,m);
+		hist = new TallyHistogram(a,b,m);
 		hist.fillFromArray(x);
 		histDensity = new ScaledHistogram(hist,1.0);
 		
@@ -88,8 +92,7 @@ public class DEHistogram implements DensityEstimator {
 	
 	public double evalDensity(double x, int n ) {
 		double h=(b-a)/m;
-		
-		return histDensity.getHeight(x)/(n*h);
+		return histDensity.getHeights()[(int) ((x - a)/h)];
 	}
 
 	 /**	
@@ -107,7 +110,7 @@ public class DEHistogram implements DensityEstimator {
 	
 	
 	public String toString(){
-		return "Histogram with Numbins"+ getM();
+		return "Histogram with Numbins "+ getM();
 	}
 	
 	

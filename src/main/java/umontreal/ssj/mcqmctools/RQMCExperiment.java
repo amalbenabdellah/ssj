@@ -106,8 +106,7 @@ public class RQMCExperiment extends MonteCarloExperiment {
 				  PointSetRandomization rand = prqmc.getRandomization();
 				  prqmc.getPointSet().randomize(rand);
 				}*/
-				prqmc.randomize();
-				
+				prqmc.randomize();	
 				stream.resetStartStream();			
 				simulateRuns(model, n, stream, statSave);
 				statSave.quickSort();
@@ -136,16 +135,17 @@ public class RQMCExperiment extends MonteCarloExperiment {
 	
      	TallyStore statSave = new TallyStore(n);
 		PointSetIterator stream = prqmc.iterator();
+		//data = new double [m][];
 		for (int rep = 0; rep < m; rep++) {			
 			
-			/*if(prqmc.getPointSet() instanceof DigitalNet || prqmc.getPointSet() instanceof CachedPointSet)
+			if(prqmc.getPointSet() instanceof DigitalNet || prqmc.getPointSet() instanceof CachedPointSet)
 			prqmc.randomize();
 			else{
 			  PointSetRandomization rand = prqmc.getRandomization();
 			  prqmc.getPointSet().randomize(rand);
 			}
-			*/
-			prqmc.randomize();
+			
+			//prqmc.randomize();
 			stream.resetStartStream();			
 			simulateRuns(model, n, stream, statSave);
 			statSave.quickSort();

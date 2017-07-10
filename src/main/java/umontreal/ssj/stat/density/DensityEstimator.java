@@ -49,6 +49,8 @@ public interface DensityEstimator {
 	public void seth (double h);
 	public double getA();
 	public double getB();
+	public void setM(int m);
+	public int getM();
 
 		
 	}

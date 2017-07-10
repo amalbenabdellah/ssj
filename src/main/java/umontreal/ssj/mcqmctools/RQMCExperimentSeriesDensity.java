@@ -128,7 +128,7 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
    
    public void testVarianceRateVariedhn (MonteCarloModelBounded model, int m,
 			DensityEstimator DE, int numEvalPoints, 
-           double[] integVariance, RQMCPointSet [] theSets) {
+           double[] integVariance, double [] h,  RQMCPointSet [] theSets) {
 	int n;
 	Tally statReps = new Tally();
 	Chrono timer = new Chrono();
@@ -143,7 +143,6 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	System.out.println("    n     CPU time     log2Var log2(IV) ");	    	
    }
 
-    double  l=1;
 	for (int s = 0; s < numSets; s++) { // For each cardinality n
 		n = theSets[s].getNumPoints();
 		size[s] = n;
@@ -151,23 +150,8 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 		
 		log2n[s] = Num.log2(n);	
 		
-	
-		
-		if ( DE == new DEHistogram(DE.getA(),DE.getB()) ){
-		    log2h[s] = Math.log((DE.getB()-DE.getA())/Math.pow(4, l));
-		    DE.seth((DE.getB()-DE.getA())/Math.pow(4, l));
-		    l++;
-			}
-		else if ( DE == new DEAveragedShiftedHistogram(DE.getA(),DE.getB()) ){
-			log2h[s] = Math.log((DE.getB()-DE.getA())/(32*Math.pow(4, l)));
-		    DE.seth((DE.getB()-DE.getA())/(32*Math.pow(4, l)));	
-		    l++;
-			
-		}
-		else {
-			log2h[s] =- Math.log(Math.pow(4, l));
-		}
-
+		log2h[s] = Num.log2(h[s]);
+	    DE.seth(h[s]);	
 		RQMCExperiment.simulReplicatesRQMCSave (model, theSets[s], m, statReps, data);		
 		integVariance[s]=RQMCExperimentDensity.computeDensityVariance (model,  m, data, DE, numEvalPoints);
 		mean[s] = statReps.average();
@@ -197,10 +181,11 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
     */
    public double[] slope ( double[] x, double [] y,  double []z, int numSkip) {
 		double[][] x2 = new double[numSets-numSkip][2];
+		//double[][] x2 = new double[2][numSets-numSkip];
 		double [] y2 = new double[numSets-numSkip];
 		for (int i = 0; i < numSets-numSkip; ++i) {
 			x2[i][0] = x[i+numSkip];
-			x2[i][1] = y[i+numSkip];			
+			x2[i][1] = y[i+numSkip];	
 			y2[i] = z[i+numSkip];
 		}
 		return LeastSquares.calcCoefficients0(x2, y2);
@@ -295,16 +280,18 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	
 	public String TestRQMCManyPointTypes (MonteCarloModelBounded model, 
 			ArrayList<RQMCPointSet[]> list, int m,
-			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
+			ArrayList<DensityEstimator> listDE, int numEvalPoints, String[] points,  
             boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		numReplicates = m;	
 		double[] integVariance= new double[numSets];   // Will contain the IV estimates, for each n.
 		for(int i=0; i < listDE.size(); i++) {
 		  for (RQMCPointSet[] ptSeries : list) {
+			  int j=0;
          	this.testVarianceRate (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
 			sb.append (reportD (details, listDE.get(i).toString()));	
-			makePlotsVar (numSets, m, (model.toString()).split(" ")[0], listDE.get(i).toString(), ptSeries.toString());
+			makePlotsVar (numSets, m, (model.toString()).split(" ")[0], listDE.get(i).toString(), points[j]);
+			j++;
 		  }
 	    }
 		return sb.toString();
@@ -318,16 +305,18 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	 */
 	public String TestRQMCManyPointTypesVariedhn (MonteCarloModelBounded model, 
 			ArrayList<RQMCPointSet[]> list, int m,
-			ArrayList<DensityEstimator> listDE, int numEvalPoints, 
+			ArrayList<DensityEstimator> listDE, int numEvalPoints,  double[] h, String [] points,
             boolean details) {
 		StringBuffer sb = new StringBuffer("");
 		numReplicates = m;	
 		double[] integVariance= new double[numSets];   // Will contain the IV estimates, for each n.
 		for(int i=0; i < listDE.size(); i++) {
+			int j=0;
 		  for (RQMCPointSet[] ptSeries : list) {	
-         	this.testVarianceRateVariedhn (model, m, listDE.get(i), numEvalPoints, integVariance, ptSeries);
+         	this.testVarianceRateVariedhn (model, m, listDE.get(i), numEvalPoints, integVariance, h,  ptSeries);
 			sb.append (reportVarianceVariedhn (details, listDE.get(i).toString()));	
-			makePlotsVar (numSets, m, (model.toString()).split(" ")[0], listDE.get(i).toString(), ptSeries.toString());
+			makePlotsVar (numSets, m, (model.toString()).split(" ")[0], listDE.get(i).toString(), points[j]);
+			j++;
 		  }
 	    }
 		return sb.toString();
@@ -351,7 +340,5 @@ public class RQMCExperimentSeriesDensity extends RQMCExperimentSeries {
 	
 
 	
-	public String toString () {
-		return theSets[0].toString();
-	}
+	
 }

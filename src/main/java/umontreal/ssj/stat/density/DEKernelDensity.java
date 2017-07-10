@@ -131,5 +131,11 @@ public double getB() {
 	
 	return b;
 }
+public void setM(int m){
+		
+};
+public int getM(){
+	return (int)(b-a/h);
+};
 
 }

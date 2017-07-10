@@ -28,18 +28,20 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		this.b = b;
 		this.m = m;
 		this.h = h;
-		kde = null;
+		kde = new KernelDensityEstimator1d ();
 		
 	}
     
-    public DEGaussianKDEBotev (double a, double b, int m ) {
+    /*public DEGaussianKDEBotev (double a, double b, int m ) {
     	
     	this.a = a;
 		this.b = b;
 		this.m = m;
-		kde = null;
+		this.h= (b-a)/m;
+		kde = new KernelDensityEstimator1d ();
 		
-	}
+		
+	}*/
     
     public void setRange(double a, double b) {
 		
@@ -47,7 +49,7 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		this.b = b;
 	}
 
-	
+    
     public void seth(double h) {
 		this.h = h;
 	}
@@ -78,12 +80,12 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 	
 	public void constructDensity(double[] x) {
 		
-		 kde = new KernelDensityEstimator1d ();
+		// kde = new KernelDensityEstimator1d ();
 		 
 		 //For fixed bandwidth
 		// kde.kde(x,m,a,b,bandwidthKDE);
 		//For variable bandwidth
-		 kde.kde(x,m,a,b);
+		 kde.kde(x,m,a,b,h);
 	}
 
 	/**
@@ -93,6 +95,7 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		double[] densi = kde.getDensity();
 		double h = (b-a)/m;
 		return densi[(int) ((x -a) /h)];
+		
 	}
 	/**
 	 * Returns the value of the density evaluated at x.
@@ -123,4 +126,8 @@ public class DEGaussianKDEBotev implements DensityEstimator {
 		return "Kernel Botev _"+ geth();
 	}
 		
+	public void setM(int m){		
+		this.m = m;
+	};
+	
 }

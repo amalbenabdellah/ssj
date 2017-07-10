@@ -27,6 +27,7 @@ public class MonteCarloExperiment {
 		}
 	}
 	
+	
 	/**
 	 * Performs <SPAN CLASS="MATH"><I>n</I></SPAN> runs using <TT>stream</TT> and
 	 * collects statistics in collectors <TT>statValue</TT> for the performance and 

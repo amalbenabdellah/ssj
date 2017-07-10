@@ -23,7 +23,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		
 		
 	}
-	/*public DEAveragedShiftedHistogramWeight (double a, double b, int r) {
+	public DEAveragedShiftedHistogramWeight (double a, double b, int r) {
 		this.a = a;
 		this.b = b;
 		this.r = r;
@@ -31,7 +31,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		histAsh = null;
 		
 		
-	}*/
+	}
 	
 	
 	public double getA() {
@@ -42,6 +42,12 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	}
 	public int getM() {
 		return m;
+	}
+	
+	
+	public void setM(int m) {
+		this.m = m;
+		
 	}
 	/*public void seth(double h) {
 		this.m = (int) ((b-a)/h);
@@ -58,7 +64,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 		this.b = b;
 		this.m = m;
 		this.r = r;
-		this.h= b-a/m;
+		this.h= (b-a)/(r*m);
 		histDensity = null;
 		histAsh = null;
 
@@ -84,7 +90,7 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	
 	public void constructDensity(double[] x) {
 		
-		TallyHistogram hist = new TallyHistogram(a,b,m);
+		TallyHistogram hist = new TallyHistogram(a,b,r*m);
 		hist.fillFromArray(x);
 		histDensity = new ScaledHistogram(hist,1.0);
 		histAsh = new ScaledHistogram(hist,1.0);
@@ -97,12 +103,8 @@ public class  DEAveragedShiftedHistogramWeight implements DensityEstimator {
 	 */
 	
 	public double evalDensity(double x, int n) {
-		double h = (b - a)/ m;	
-		double evaldens = histAsh.getHeights()[(int) ((x - a)/h)]/(n*h*r*r);
-		//return evaldens;
-		//return histDensity.getHeight(x)/(n*h*r*r);
-		
-		//double evaldens = histAsh.getIntegral()/(n*h*h*r*r);
+		double h = (b - a)/ (r*m);	
+		double evaldens = histAsh.getHeights()[(int) ((x - a)/h)];
 		return evaldens;
 	}
 	

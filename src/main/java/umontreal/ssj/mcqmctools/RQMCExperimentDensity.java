@@ -44,6 +44,9 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			double[][] data, DensityEstimator de, int numEvalPoints) {
 
 		double x, y;
+		/*if ( de == new DEHistogram(de.getA(),de.getB()) ||de == new DEAveragedShiftedHistogram(de.getA(),de.getB()) || de == new DEAveragedShiftedHistogramWeight(de.getA(),de.getB()) )			numEvalPoints = (int)(de.getB() - de.getA()/ de.geth());
+		numEvalPoints = de.getM();*/
+	
 		
 		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
 		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
@@ -61,8 +64,11 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 		for (int rep = 0; rep < m; rep++) {
 			// Estimate the density and evaluate it at eval points
 			de.constructDensity(data[rep]);				
+			/*for (int i=0; i < numEvalPoints; i++)
+				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;*/
+			
 			for (int i=0; i < numEvalPoints; i++)
-				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;
+				evalPoints[i] = de.getA() + (i+0.5) *(de.getB()-de.getA() )/numEvalPoints;
 			
 			de.evalDensity(evalPoints, estimDens, data[rep]);
 
@@ -137,6 +143,9 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 
 		double x, y;
 		
+		/*if ( de == new DEHistogram(de.getA(),de.getB()) ||de == new DEAveragedShiftedHistogram(de.getA(),de.getB()) || de == new DEAveragedShiftedHistogramWeight(de.getA(),de.getB()) )			numEvalPoints = (int)(de.getB() - de.getA()/ de.geth());
+		numEvalPoints = de.getM();*/
+		
 		double evalPoints[] = new double[numEvalPoints];  // Points at which the density will be evaluated
 		double estimDens[] = new double[numEvalPoints];   // Value of the density at those points
 		double miseDens[] = new double[numEvalPoints];
@@ -154,6 +163,9 @@ public class RQMCExperimentDensity extends RQMCExperiment {
 			for (int i=0; i < numEvalPoints; i++)
 				evalPoints[i] = (de.getB()-de.getA() )/numEvalPoints  ;}
 			else{*/
+			
+			/*if ( de == new DEHistogram(de.getA(),de.getB()) ||de == new DEAveragedShiftedHistogram(de.getA(),de.getB()) || de == new DEAveragedShiftedHistogramWeight(de.getA(),de.getB()) )
+				numEvalPoints = (int)((de.getB()-de.getA() )/de.geth());*/
 				for (int i=0; i < numEvalPoints; i++)
 					evalPoints[i] = de.getA() + (i+0.5) *(de.getB()-de.getA() )/numEvalPoints;
 			
